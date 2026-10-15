@@ -107,6 +107,15 @@
   .footer { position: absolute; left: 96px; right: 96px; bottom: 26px; display: flex; justify-content: space-between;
             font-size: 18px; color: var(--muted); }
 
+  .tl { position: relative; padding-left: 4px; }
+  .tl::before { content: ""; position: absolute; left: 104px; top: 14px; bottom: 14px; width: 3px; background: var(--line); }
+  .tl-row { display: flex; align-items: flex-start; gap: 18px; margin-bottom: 12px; font-size: 22px; line-height: 1.3; }
+  .tl-t { flex: 0 0 76px; font-family: "JetBrains Mono", monospace; color: var(--muted); font-size: 20px; padding-top: 2px; }
+  .tl-d { flex: 0 0 16px; height: 16px; margin-top: 6px; border-radius: 50%; background: #a9c8e6; border: 3px solid var(--paper); position: relative; z-index: 1; }
+  .tl-plan .tl-d { background: var(--blue-ink); }
+  .tl-plan .tl-x { color: var(--blue-ink); }
+  .tl-x { flex: 1; }
+
   .notes { display: none; }
 
   .qr-card { text-align: center; padding: 22px 20px; }
@@ -568,31 +577,64 @@
 </section>
 
 <!-- 16 -->
-<section class="slide" data-title="Параллельно">
-  <p class="kicker">L6 → L7 на практике</p>
-  <h2>Параллельные агенты и модели по ролям</h2>
-  <div class="row grow">
-    <div class="col">
-      <div class="card" style="margin-bottom:24px">
-        <h3>11 сентября: 7 веток <code>worktree-agent-*</code> смержены за день</h3>
-        <p style="margin:0">Субагенты получают по задаче из плана, каждый в своём worktree, затем ревью и мерж.</p>
+<section class="slide" data-title="L7: 11 сентября">
+  <p class="kicker">L6 → L7 на практике · itffm, git log</p>
+  <h2>11 сентября: одно решение, семь веток</h2>
+  <div class="row grow" style="gap:48px">
+    <div class="col" style="flex:1.25">
+      <div class="tl">
+        <div class="tl-row tl-plan"><span class="tl-t">06:04</span><span class="tl-d"></span><span class="tl-x"><b>план:</b> 11 баг-репортов с плей-теста + старые TODO одной пачкой → моё решение: параллельно</span></div>
+        <div class="tl-row"><span class="tl-t">06:12</span><span class="tl-d"></span><span class="tl-x">убран экран дисклеймера, мешавший на мобильных</span></div>
+        <div class="tl-row"><span class="tl-t">06:22</span><span class="tl-d"></span><span class="tl-x">рельсы проваливались в рельеф, деревья росли сквозь путь</span></div>
+        <div class="tl-row"><span class="tl-t">06:25</span><span class="tl-d"></span><span class="tl-x">швы земли между чанками</span></div>
+        <div class="tl-row"><span class="tl-t">06:27</span><span class="tl-d"></span><span class="tl-x">коллизия двери хижины</span></div>
+        <div class="tl-row"><span class="tl-t">06:38</span><span class="tl-d"></span><span class="tl-x">Esc открывает меню паузы</span></div>
+        <div class="tl-row"><span class="tl-t">06:42</span><span class="tl-d"></span><span class="tl-x">синтезированный звук воды: ручей слышно раньше, чем видно</span></div>
+        <div class="tl-row"><span class="tl-t">06:54</span><span class="tl-d"></span><span class="tl-x">perf: отсечение по дистанции</span></div>
       </div>
-      <div class="card">
-        <h3>Облачные сессии</h3>
-        <p style="margin:0">Ветка <code>claude/compassionate-gates-…</code> — сессия, запущенная не с ноутбука.</p>
-      </div>
+      <p class="muted" style="font-size:19px;margin:12px 0 0">каждая строка после плана — мерж своей ветки <code>worktree-agent-&lt;id&gt;</code></p>
     </div>
-    <div class="col">
-      <h3>Кто соавтор коммитов</h3>
-      <table>
-        <tr><th>модель</th><th>коммитов</th><th>роль</th></tr>
-        <tr><td>Sonnet 5</td><td><b>280</b></td><td>исполнитель по плану</td></tr>
-        <tr><td>Opus 5 / 5.5</td><td><b>53</b></td><td>спеки, планы, сложное</td></tr>
-      </table>
-      <p class="note-hand" style="margin-top:24px">Дорогая модель думает, быстрая делает.</p>
+    <div class="col" style="flex:.8">
+      <div class="card" style="margin-bottom:20px">
+        <h3>Моё — одно решение</h3>
+        <ul><li>собрать репорты в один план</li><li>увидеть, что задачи независимы</li><li>сказать «параллельно»</li></ul>
+      </div>
+      <div class="card" style="border-color:var(--blue)">
+        <h3>Claude Code — всё остальное</h3>
+        <ul><li>7 субагентов в одном сообщении</li><li>7 worktree и 7 веток</li><li>тесты в каждой, 7 мержей по одной</li></ul>
+      </div>
     </div>
   </div>
-  <aside class="notes">В RTC почти всё делал один Opus. В itffm разделение ролей: Opus пишет спеку и план, Sonnet исполняет задачи плана, субагенты работают параллельно в worktree. Это и есть «команда агентов» L7 в минимальном виде. ~2.5 мин.</aside>
+  <aside class="notes">Распараллелить попросил я сам, но дальше всё сделал инструмент. Основная сессия — оркестратор: она вызывает Agent tool с isolation: worktree, Claude Code создаёт каждому субагенту свой git worktree и ветку worktree-agent-&lt;id&gt;. Субагент стартует с чистым контекстом, делает задачу, гоняет тесты и возвращает короткий отчёт. Оркестратор мержит ветки по одной. Порядок задаёт superpowers: dispatching-parallel-agents, subagent-driven-development. Модели по ролям: в itffm Opus 5/5.5 соавтор 53 коммитов (спеки, планы, сложное), Sonnet 5 — 280 (исполнение). Дорогая модель думает, быстрая делает. ~2.5 мин.</aside>
+</section>
+
+<!-- 16b -->
+<section class="slide" data-title="L7: два оркестратора">
+  <p class="kicker">что на самом деле поменялось между L6 и L7</p>
+  <h2>Один примитив — <code style="font-size:.8em">git worktree</code> — и два оркестратора</h2>
+  <div class="row" style="align-items:stretch">
+    <div class="card col">
+      <span class="badge sm">L6</span>
+      <h3 style="margin-top:16px">claude-remote-vm-dev</h3>
+      <p class="mono" style="font-size:20px;line-height:1.6;background:#eef2f6;border-radius:10px;padding:12px 16px">я → rd-start … --session A<br>я → rd-start … --session B<br>я → rd-start … --session C</p>
+      <p style="margin:0">Worktree на каждую сессию написал <b>я</b>. Сколько агентов и над чем — решает <b>человек</b>.</p>
+    </div>
+    <div class="card col" style="border-color:var(--blue)">
+      <span class="badge sm">L7</span>
+      <h3 style="margin-top:16px">itffm, Claude Code</h3>
+      <p class="mono" style="font-size:20px;line-height:1.6;background:#eef2f6;border-radius:10px;padding:12px 16px">я → «параллельно»<br>агент → Agent(isolation: worktree) ×7<br>агент → merge ×7</p>
+      <p style="margin:0">Worktree создаёт <b>инструмент</b>. Как разложить работу — решает <b>агент</b>, я только разрешаю.</p>
+    </div>
+  </div>
+  <div class="row" style="margin-top:28px;align-items:center;gap:24px">
+    <p style="margin:0;flex:0 0 auto"><b>Где запущен агент — уже не важно:</b></p>
+    <div class="flow" style="flex:1">
+      <div class="step"><b>своя VM</b>tmux + systemd</div>
+      <div class="step"><b>облако</b>claude.ai/code</div>
+      <div class="step"><b>телефон</b>пульт к любой из них</div>
+    </div>
+  </div>
+  <aside class="notes">Главная мысль: L7 мне дал инструмент, а не я его построил. Моя работа на этой ступеньке — сделать задачи независимыми и проверяемыми: план, тесты, boot-check, CLAUDE.md с общими правилами для всех семерых. Сессии запускал и с компа, и с телефона — по-всякому. Где ломается: горячие файлы (main.ts, CHANGELOG) дают конфликты при мерже; общие ресурсы вроде портов (отсюда BOOT_CHECK_PORT в Race the City «чтобы параллельные чекауты не конфликтовали»); каждый субагент стартует с нуля и платит токенами за контекст; ревью семи веток всё равно на человеке. ~2 мин.</aside>
 </section>
 
 <!-- 17 -->
