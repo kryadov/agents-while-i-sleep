@@ -26,8 +26,8 @@
   html, body { margin: 0; height: 100%; background: #e9ecf0; color: var(--ink); overflow: hidden; }
   body { font-family: Inter, system-ui, sans-serif; }
 
-  #viewport { position: fixed; inset: 0; display: grid; place-items: center; }
-  #stage { width: 1600px; height: 900px; position: relative; transform-origin: center center; }
+  #viewport { position: fixed; inset: 0; overflow: hidden; }
+  #stage { width: 1600px; height: 900px; position: absolute; left: 50%; top: 50%; transform-origin: center center; transform: translate(-50%, -50%); }
 
   section.slide {
     position: absolute; inset: 0; padding: 72px 96px 64px;
@@ -139,7 +139,7 @@
   @media print {
     html, body { overflow: visible; background: #fff; }
     #viewport { position: static; display: block; }
-    #stage { transform: none !important; width: auto; height: auto; }
+    #stage { transform: none !important; position: static; width: auto; height: auto; }
     section.slide { display: flex !important; position: relative; width: 1600px; height: 900px; break-after: page; box-shadow: none; }
     #progress, #notes-panel, #nav { display: none !important; }
   }
@@ -801,7 +801,7 @@
 
   function fit() {
     var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
-    stage.style.transform = 'scale(' + s + ')';
+    stage.style.transform = 'translate(-50%, -50%) scale(' + s + ')';
   }
   function show(i) {
     cur = Math.max(0, Math.min(slides.length - 1, i));
