@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Лестница агентов</title>
+<meta name="description" content="Две игры, одна VM и агенты, которые не спят: подъём по лестнице AI-разработки L1→L9. Batumi meetup, Константин Рядов.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6f7f9;
+    --card: #ffffff;
+    --ink: #26303b;
+    --muted: #6b7682;
+    --line: #d5dbe2;
+    --blue: #3d7fc1;
+    --blue-soft: #dcebf8;
+    --blue-ink: #24598f;
+    --green: #2f8a5b;
+    --amber: #b7791f;
+    --red: #b8433a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #e9ecf0; color: var(--ink); overflow: hidden; }
+  body { font-family: Inter, system-ui, sans-serif; }
+
+  #viewport { position: fixed; inset: 0; display: grid; place-items: center; }
+  #stage { width: 1600px; height: 900px; position: relative; transform-origin: center center; }
+
+  section.slide {
+    position: absolute; inset: 0; padding: 72px 96px 64px;
+    background: var(--paper);
+    box-shadow: 0 10px 40px rgba(30, 40, 55, .12);
+    display: none; flex-direction: column;
+  }
+  section.slide.active { display: flex; }
+
+  .kicker { font-family: Caveat, cursive; font-size: 40px; color: var(--blue); margin: 0 0 6px; line-height: 1; }
+  h1 { font-size: 76px; line-height: 1.05; margin: 0 0 24px; font-weight: 800; letter-spacing: -.02em; }
+  h2 { font-size: 54px; line-height: 1.1; margin: 0 0 32px; font-weight: 800; letter-spacing: -.015em; }
+  h3 { font-size: 30px; margin: 0 0 12px; font-weight: 700; }
+  p, li { font-size: 30px; line-height: 1.4; }
+  p { margin: 0 0 18px; }
+  ul { margin: 0; padding-left: 1.1em; }
+  li { margin: 0 0 12px; }
+  li::marker { color: var(--blue); }
+  .muted { color: var(--muted); }
+  .hand { font-family: Caveat, cursive; color: var(--blue-ink); }
+  code, .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .85em; }
+  code { background: #e8edf3; padding: 2px 8px; border-radius: 6px; }
+  a { color: var(--blue-ink); }
+  b, strong { font-weight: 700; }
+
+  .grow { flex: 1; min-height: 0; }
+  .row { display: flex; gap: 40px; }
+  .col { flex: 1; min-width: 0; }
+  .center { align-items: center; justify-content: center; text-align: center; }
+
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 28px 32px; }
+  .card p, .card li { font-size: 26px; }
+  .card h3 { font-size: 28px; }
+
+  .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 74px; height: 74px; border-radius: 50%;
+           background: var(--blue-soft); border: 3px solid var(--blue); color: var(--blue-ink);
+           font-weight: 800; font-size: 30px; padding: 0 12px; }
+  .badge.sm { min-width: 52px; height: 52px; font-size: 22px; border-width: 2px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .stat { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 24px 26px; }
+  .stat .n { font-size: 64px; font-weight: 800; color: var(--blue-ink); line-height: 1; letter-spacing: -.02em; }
+  .stat .l { font-size: 22px; color: var(--muted); margin-top: 10px; line-height: 1.3; }
+
+  .flow { display: flex; align-items: stretch; gap: 14px; }
+  .flow .step { flex: 1; background: var(--card); border: 2px solid var(--line); border-radius: 14px; padding: 18px 16px; font-size: 22px; line-height: 1.3; }
+  .flow .step b { display: block; font-size: 24px; margin-bottom: 6px; color: var(--blue-ink); }
+  .flow .arr { align-self: center; color: var(--blue); font-size: 36px; font-weight: 700; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 25px; }
+  th, td { text-align: left; padding: 14px 18px; border-bottom: 2px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 21px; text-transform: uppercase; letter-spacing: .04em; }
+
+  .quote { font-size: 34px; line-height: 1.35; border-left: 6px solid var(--blue); padding: 6px 0 6px 28px; margin: 0; }
+  .note-hand { font-family: Caveat, cursive; font-size: 38px; color: var(--blue-ink); }
+
+  /* chart */
+  .bars { display: flex; align-items: flex-end; gap: 8px; height: 360px; border-bottom: 2px solid var(--ink); padding: 0 4px; }
+  .bars .b { flex: 1; background: #a9c8e6; border-radius: 5px 5px 0 0; position: relative; }
+  .bars .b.night { background: var(--blue); }
+  .bars .b span { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 17px; color: var(--muted); }
+  .hours { display: flex; gap: 8px; padding: 6px 4px 0; }
+  .hours div { flex: 1; text-align: center; font-size: 17px; color: var(--muted); font-family: "JetBrains Mono", monospace; }
+
+  /* ladder strip */
+  .ladder { display: flex; gap: 10px; align-items: flex-end; }
+  .ladder .rung { flex: 1; border-radius: 12px; border: 2px solid var(--line); background: var(--card);
+                  padding: 12px 10px; font-size: 18px; text-align: center; line-height: 1.25; }
+  .ladder .rung b { display: block; font-size: 24px; color: var(--muted); }
+  .ladder .rung.on { border-color: var(--blue); background: var(--blue-soft); }
+  .ladder .rung.on b { color: var(--blue-ink); }
+  .ladder .rung.me { border-color: var(--blue-ink); background: var(--blue); color: #fff; }
+  .ladder .rung.me b { color: #fff; }
+
+  .ladder-img { width: 100%; height: 100%; object-fit: contain; }
+
+  .footer { position: absolute; left: 96px; right: 96px; bottom: 26px; display: flex; justify-content: space-between;
+            font-size: 18px; color: var(--muted); }
+
+  .notes { display: none; }
+
+  /* UI chrome */
+  #progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--blue); transition: width .25s; z-index: 5; }
+  #notes-panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 38vh; overflow: auto; background: #1f2731; color: #e9eef4;
+                 font-size: 18px; line-height: 1.5; padding: 16px 24px 22px; display: none; z-index: 6; }
+  #notes-panel.on { display: block; }
+  #notes-panel .t { color: #8fb7de; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  #nav { position: fixed; right: 14px; bottom: 12px; display: flex; gap: 6px; z-index: 7; opacity: .35; transition: opacity .2s; }
+  #nav:hover { opacity: 1; }
+  #nav button { font: 600 14px Inter, sans-serif; border: 1px solid #b9c2cc; background: #fff; color: var(--ink); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+  #counter { font: 500 14px Inter, sans-serif; color: var(--muted); align-self: center; padding: 0 6px; }
+
+  @media print {
+    html, body { overflow: visible; background: #fff; }
+    #viewport { position: static; display: block; }
+    #stage { transform: none !important; width: auto; height: auto; }
+    section.slide { display: flex !important; position: relative; width: 1600px; height: 900px; break-after: page; box-shadow: none; }
+    #progress, #notes-panel, #nav { display: none !important; }
+  }
+  @page { size: 1600px 900px; margin: 0; }
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- 1 -->
+<section class="slide" data-title="Титул">
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+    <p class="kicker">Batumi meetup · доклад</p>
+    <h1>Две игры, одна VM<br>и агенты, которые не спят</h1>
+    <p style="font-size:34px" class="muted">Как я поднимался по лестнице AI-разработки<br>от одиночного агента к параллельным сессиям</p>
+    <div class="ladder" style="margin-top:48px;max-width:1100px">
+      <div class="rung"><b>L1</b></div><div class="rung"><b>L2</b></div><div class="rung"><b>L3</b></div>
+      <div class="rung on"><b>L4</b></div><div class="rung on"><b>L5</b></div><div class="rung on"><b>L6</b></div>
+      <div class="rung on"><b>L7</b></div><div class="rung"><b>L8</b></div><div class="rung"><b>L9</b></div>
+    </div>
+  </div>
+  <div class="footer"><span>Константин Рядов · github.com/kryadov</span><span>← → листать · N заметки · F полный экран</span></div>
+  <aside class="notes">Представиться. Обещание доклада: на трёх настоящих проектах показать, как меняется работа на каждой ступеньке лестницы. Никаких «AI заменит программистов», только цифры из git log. ~1 мин.</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="Лестница">
+  <p class="kicker">карта местности</p>
+  <h2 style="margin-bottom:12px">Лестница L1 → L9</h2>
+  <div class="grow"><img class="ladder-img" src="l0-l9.png" alt="Лестница уровней AI-разработки: L1 ручной код, L2 бесплатные чаты, L3 платные чаты, L4 агент под присмотром, L5 полный доступ, L6 параллельные агенты, L7 команда агентов, L8 рой, L9 экосистема"></div>
+  <aside class="notes">Вопрос залу: поднимите руки, кто на L1–L3 (чаты), кто на L4–L5 (агент в репозитории), кто хоть раз запускал несколько агентов параллельно. Большинство команд сейчас на L1–L3. Доклад о том, что меняется на L4–L7, и о том, что пришлось построить, чтобы туда подняться. ~2 мин.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="Три ступеньки">
+  <p class="kicker">о чём доклад</p>
+  <h2>Три проекта, три ступеньки</h2>
+  <div class="row grow" style="align-items:stretch">
+    <div class="card col">
+      <span class="badge sm">L4→L5</span>
+      <h3 style="margin-top:18px">Race the City</h3>
+      <p class="muted">июль 2026</p>
+      <p>Гонки по любому городу мира. Один агент с полным доступом, релиз каждые полчаса.</p>
+      <p class="hand" style="font-size:32px">узкое место — я сам</p>
+    </div>
+    <div class="card col">
+      <span class="badge sm">L5→L6</span>
+      <h3 style="margin-top:18px">claude-remote-vm-dev</h3>
+      <p class="muted">август 2026</p>
+      <p>Сессии Claude Code на VM внутри периметра. Работают, пока ноутбук закрыт.</p>
+      <p class="hand" style="font-size:32px">инфраструктура для следующей ступеньки</p>
+    </div>
+    <div class="card col">
+      <span class="badge sm">L6→L7</span>
+      <h3 style="margin-top:18px">itffm 🍄</h3>
+      <p class="muted">сентябрь 2026</p>
+      <p>Грибной лес по реальному месту. Параллельные агенты в worktree, модели по ролям.</p>
+      <p class="hand" style="font-size:32px">узкое место — ревью</p>
+    </div>
+  </div>
+  <aside class="notes">Сюжет доклада: каждый проект упирался в своё узкое место, и следующий проект появлялся из попытки это место расшить. ~1 мин.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Race the City">
+  <p class="kicker">ступенька L4 → L5 · Race the City</p>
+  <h2>Введи название города и поезжай</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>Low-poly версия <b>реального</b> города: дороги, дома, мосты, рельсы, вода, рельеф</li>
+        <li>19 машин, соперники, заезды на время, автопилот</li>
+        <li>Трафик, пешеходы, трамваи, корабли, погода, день и ночь</li>
+        <li>Всё в браузере, <b>без бэкенда</b></li>
+      </ul>
+      <p style="margin-top:28px">▶ <a href="https://race-the-city.games" target="_blank" rel="noopener">race-the-city.games</a></p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <p class="note-hand" style="margin:0 0 8px">демо вживую:</p>
+        <p style="margin:0">Батуми → 🎲 случайный город → <code>V</code> неоновый вид</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">ДЕМО 60–90 сек: открыть сайт, ввести «Batumi», проехать по набережной. Потом 🎲, чтобы попасть в случайный город. Если сеть плохая, показать кешированный город (IndexedDB). ~3 мин вместе с демо.</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="RTC цифры">
+  <p class="kicker">Race the City в цифрах (git log)</p>
+  <h2>164 релиза за первые три дня</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">100</div><div class="l">тегов-релизов в первый день, 16 июля</div></div>
+    <div class="stat"><div class="n">435</div><div class="l">коммитов, 360 из них за первые 4 дня</div></div>
+    <div class="stat"><div class="n">28.6k</div><div class="l">строк TypeScript в <code>src/</code></div></div>
+    <div class="stat"><div class="n">104</div><div class="l">файла тестов (Vitest)</div></div>
+  </div>
+  <div class="row" style="margin-top:40px">
+    <div class="col"><p><b>v0.1 → v0.149</b>: 310 тегов, каждый тег — задеплоенная сборка и GitHub Release.</p></div>
+    <div class="col"><p><b>352 из 435</b> коммитов с соавтором <code>Claude Opus</code>. Мой вклад: спеки, плей-тесты и решения.</p></div>
+  </div>
+  <aside class="notes">Цифры из git, не из маркетинга. Подчеркнуть: релиз примерно каждые 30 минут — это не героизм, а следствие архитектуры и процесса (следующие слайды). ~1.5 мин.</aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="Мир как контент">
+  <p class="kicker">почему это вообще возможно</p>
+  <h2>Весь мир — это исходные данные</h2>
+  <div class="flow" style="margin-bottom:36px">
+    <div class="step"><b>Nominatim</b>«Batumi» → координаты</div><div class="arr">→</div>
+    <div class="step"><b>Overpass</b>OSM в bbox 1 км</div><div class="arr">→</div>
+    <div class="step"><b>Terrain Tiles</b>рельеф AWS, формат Terrarium</div><div class="arr">→</div>
+    <div class="step"><b>Three.js</b>меши, коллизии, граф дорог</div><div class="arr">→</div>
+    <div class="step"><b>IndexedDB</b>город в кеше</div>
+  </div>
+  <div class="row">
+    <div class="card col"><h3>Что даёт</h3><ul><li>Бесконечный контент без левел-дизайнеров</li><li>Агенту есть с чем работать: формат данных стандартный и хорошо описанный</li></ul></div>
+    <div class="card col"><h3>Подвох</h3><ul><li>Overpass отвечает 429 → таймаут 30 с, три зеркала, протухший кеш как запасной вариант</li><li>Грязные данные: вода на 4 м выше реки, мосты без высоты</li></ul></div>
+  </div>
+  <aside class="notes">Ключевая мысль для AI-части: агенту проще всего там, где данные открытые и формат стандартный. OSM — идеальный «контент», который не надо рисовать. Тот же приём потом переедет в itffm. ~2 мин.</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="Zero backend">
+  <p class="kicker">архитектура</p>
+  <h2>Zero backend — меньше поверхности для ошибок</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>Статика на GitHub Pages: деплой = <code>git tag</code></li>
+        <li>Каждый сетевой запрос уходит прямо из браузера</li>
+        <li>IndexedDB: кеш городов и прогресс игрока</li>
+        <li>Слои с односторонними зависимостями: <code>geo/</code> не знает про Three.js, <code>world/</code> не знает про сеть</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.85">
+      <div class="card">
+        <h3>Почему это важно для агентов</h3>
+        <p>Нет сервера → нет миграций, секретов, окружений. Агент может зарелизить сам, а откат = предыдущий тег.</p>
+        <p class="muted" style="margin:0">Границы слоёв записаны в <code>AGENTS.md</code> как правила, которые <b>должны</b> соблюдаться.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Архитектура как ограничитель для агента: чем меньше движущихся частей, тем больше можно доверить. AGENTS.md — контракт между мной и агентом. ~2 мин.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="Релиз каждые 30 минут">
+  <p class="kicker">темп как часть архитектуры</p>
+  <h2>Релиз каждые ~30 минут — и не развалиться</h2>
+  <div class="row grow">
+    <div class="card col"><h3>Версия = деплой</h3><p>Каждый bump — тег, Release и запись в <code>CHANGELOG.md</code> с пометкой 👀 «что проверить при плей-тесте».</p></div>
+    <div class="card col"><h3>boot-check</h3><p>Тесты зелёные, типы чистые, сборка прошла — а на экране чёрный экран. Headless Chrome грузит собранное приложение и падает, если оно не стартовало.</p></div>
+    <div class="card col"><h3>TODO как живой бэклог</h3><p>Плей-тест → баг записан сразу → «сначала баги, потом полировка». Роадмапа на бумаге нет.</p></div>
+  </div>
+  <aside class="notes">История boot-check: временная мёртвая зона (TDZ) в main.ts. Ни один unit-тест не грузит main.ts, поэтому всё было зелёным, а игра не запускалась. После этого проверка стала обязательной для любой правки, которая трогает main. ~2 мин.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="Где агент ошибался">
+  <p class="kicker">кто на самом деле писал коллизии</p>
+  <h2>Где агент ошибался — и как это ловили</h2>
+  <div class="row grow">
+    <div class="col">
+      <p class="quote">«Невидимая стена посреди обычной дороги»<br><span class="muted" style="font-size:26px">баг-репорт с плей-теста, Париж, остров Сите, v0.148.1</span></p>
+      <ul style="margin-top:28px">
+        <li>Агент добавил в паузу отладочный readout: <code>solid: quay@1.3m</code></li>
+        <li>Причина: ограничение по набережной было только снизу. 1593 стены → 25</li>
+        <li>Тот же класс бага всплыл <b>в третий раз</b></li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.75">
+      <div class="card">
+        <h3>Вывод</h3>
+        <p>Инвариант записан прямо в TODO: <b>solid ⇒ visible</b>.</p>
+        <p class="muted" style="margin:0">Агент не помнит прошлую сессию. Помнит репозиторий: AGENTS.md, TODO, CHANGELOG, тесты.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Человек нашёл баг глазами, агент сделал инструмент диагностики и нашёл причину. Важно: чтобы ошибка не повторилась в четвёртый раз, её надо записать туда, где агент её прочитает. ~2 мин.</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="Спека → план → код">
+  <p class="kicker">процесс L4 → L5</p>
+  <h2>Спека → план → код → релиз</h2>
+  <div class="flow" style="margin-bottom:40px">
+    <div class="step"><b>brainstorm</b>диалог: что строим и зачем</div><div class="arr">→</div>
+    <div class="step"><b>spec</b><code>docs/superpowers/specs</code></div><div class="arr">→</div>
+    <div class="step"><b>plan</b>задачи с тестами</div><div class="arr">→</div>
+    <div class="step"><b>code + TDD</b>агент</div><div class="arr">→</div>
+    <div class="step"><b>play-test</b>человек</div>
+  </div>
+  <div class="row">
+    <div class="card col"><h3>Делегировалось</h3><ul><li>Код, тесты, рефакторинг</li><li>Релизы, CHANGELOG</li><li>Диагностика по репорту</li></ul></div>
+    <div class="card col"><h3>Оставалось за мной</h3><ul><li>Что строим и в каком порядке</li><li>«Посмотреть глазами»</li><li>Когда остановиться</li></ul></div>
+    <div class="card col"><h3>Бонус: агент в CI</h3><p>Комментарий <code>/oc</code> в issue или PR → opencode на GLM через OpenRouter.</p></div>
+  </div>
+  <aside class="notes">8 спек и 4 плана за проект. Superpowers-скиллы задают процесс. Бонус: дешёвая модель в GitHub Actions отвечает на /oc. Это первый шаг к «агенту, который работает без меня». ~2 мин.</aside>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="Узкое место — я">
+  <p class="kicker">почему понадобилась следующая ступенька</p>
+  <h2>Узкое место — я и мой ноутбук</h2>
+  <div class="row grow">
+    <div class="col" style="flex:1.6">
+      <div class="bars" id="hours-chart" aria-label="Коммиты Race the City по часам суток"></div>
+      <div class="hours" id="hours-axis"></div>
+      <p class="muted" style="font-size:22px;margin-top:10px">Коммиты Race the City по часу суток, всего 435</p>
+    </div>
+    <div class="col">
+      <p><b class="mono" style="color:var(--blue-ink);font-size:44px">137</b> коммитов — с полуночи до 7 утра.</p>
+      <p>Сессия агента живёт, пока открыт ноутбук. Закрыл крышку — работа встала.</p>
+      <p class="note-hand">Агенты должны работать, пока я сплю. А не я вместе с ними.</p>
+    </div>
+  </div>
+  <aside class="notes">Честный слайд: треть коммитов ночью. Один агент, и я его единственный оператор. Масштабироваться можно было только за счёт сна. Отсюда следующий проект. ~1.5 мин.</aside>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="claude-remote-vm-dev">
+  <p class="kicker">ступенька L5 → L6 · claude-remote-vm-dev</p>
+  <h2>Сессии Claude Code на VM внутри периметра</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li><b>tmux</b> держит каждую сессию, <b>systemd + linger</b> переживают дисконнект и ребут</li>
+        <li>Каждая сессия — свой <b>git worktree</b> и своя ветка: агенты не делят индекс</li>
+        <li><code>rd-tui</code>: список сессий, attach, stop, новая</li>
+        <li>Провайдер на выбор: <b>Vertex AI</b>, <b>Bedrock</b>, <b>Anthropic API</b></li>
+        <li>GitLab и GitHub, включая Enterprise Server</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:21px;line-height:1.55;background:#1f2731;color:#dfe7ef;border-color:#1f2731">
+        $ rd-start backend --session new-search<br>
+        $ rd-start backend --session login-fix \<br>&nbsp;&nbsp;&nbsp;&nbsp;--type bugfix<br>
+        $ rd-start backend --session try \<br>&nbsp;&nbsp;&nbsp;&nbsp;--provider bedrock<br>
+        <span style="color:#8fb7de"># закрыть ноутбук 💤</span><br>
+        $ rd-list --all
+      </div>
+      <p style="margin-top:20px;font-size:24px"><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">github.com/kryadov/claude-remote-vm-dev</a></p>
+    </div>
+  </div>
+  <aside class="notes">Типичный цикл: запустил сессию, дал задачу, закрыл ноутбук. Утром VS Code Remote-SSH для диффов, rd-attach, чтобы ответить на вопросы агента, потом MR. Можно показать gif rd-tui из README. ~2.5 мин.</aside>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="Для компаний">
+  <p class="kicker">почему VM, а не просто облачный агент</p>
+  <h2>Для корпоративной разработки</h2>
+  <div class="row grow">
+    <div class="card col"><h3>Периметр</h3><p>Код и токены не уезжают из сети организации. VM — граница изоляции, агент спокойно гоняет <code>docker compose</code>.</p></div>
+    <div class="card col"><h3>Секреты</h3><p>Креды провайдера лежат в файле с правами 0600. В tmux уходит только <b>имя</b> провайдера, в <code>ps</code> их не видно.</p></div>
+    <div class="card col"><h3>Грабли Bedrock</h3><p>Без закреплённых моделей алиас <code>opus</code> тихо падает на младшую модель. WebSearch там недоступен.</p></div>
+  </div>
+  <p class="note-hand" style="margin-top:28px">Один bootstrap-скрипт, идемпотентный. Спека 15 августа, рабочая версия через две недели. Тоже с агентом.</p>
+  <aside class="notes">Для тех, у кого «нам нельзя в облако»: вот как поднять L6 внутри периметра. ~1.5 мин.</aside>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="itffm">
+  <p class="kicker">ступенька L6 → L7 · itffm 🍄</p>
+  <h2>Тихая прогулка по настоящему лесу</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>Игра от первого лица про сбор грибов плюс энциклопедия</li>
+        <li>Лес строится по реальному месту: <b>тот же OSM + Terrain Tiles</b></li>
+        <li>Подберёзовик растёт под берёзой, вешенка на валежнике</li>
+        <li>Хижина, костёр, рыбалка, квесты, квадрокоптер, шахта</li>
+      </ul>
+      <p style="margin-top:24px">▶ <a href="https://kryadov.github.io/itffm/" target="_blank" rel="noopener">kryadov.github.io/itffm</a></p>
+    </div>
+    <div class="col" style="flex:.9">
+      <div class="card">
+        <h3>3D-моделей нет вообще</h3>
+        <p class="mono" style="font-size:21px;line-height:1.6;margin:0">data/species/*.yaml<br>&nbsp;├─ morphology → 3D-модель<br>&nbsp;├─ ecology &nbsp;&nbsp;→ где и когда растёт<br>&nbsp;└─ name/text &nbsp;→ энциклопедия</p>
+        <p style="margin-top:16px;margin-bottom:0">Новый вид — это строчка данных, а не задача для 3D-художника.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">ДЕМО 60 сек: зайти в лес, найти гриб, взять в руки, повернуть, открыть энциклопедию. Параллель с RTC: там OSM вместо левел-дизайнера, здесь YAML вместо 3D-художника. Агенту проще генерировать данные и генераторы, чем ассеты. ~3 мин с демо.</aside>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="itffm цифры">
+  <p class="kicker">itffm в цифрах (git log)</p>
+  <h2>17 дней от спеки до v0.103</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">375</div><div class="l">коммитов, 150 из них за второй день</div></div>
+    <div class="stat"><div class="n">126</div><div class="l">тегов-релизов, v0.1 → v0.103</div></div>
+    <div class="stat"><div class="n">57</div><div class="l">видов в YAML: грибы, ягоды, травы, находки</div></div>
+    <div class="stat"><div class="n">109</div><div class="l">файлов тестов, 25k строк TS</div></div>
+  </div>
+  <div class="row" style="margin-top:40px">
+    <div class="col"><p><b>9 спек, 6 планов</b>. Спека начинается с раздела 0: «где код оказался умнее спеки».</p></div>
+    <div class="col"><p>Перенесено из RTC без изменений: <code>boot-check</code>, CHANGELOG, FEATURES.md, деплой по тегу.</p></div>
+  </div>
+  <aside class="notes">Второй проект быстрее стартует, потому что процесс уже отлажен и переносится как набор файлов: CLAUDE.md, boot-check, changelog-дисциплина. ~1.5 мин.</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-title="Параллельно">
+  <p class="kicker">L6 → L7 на практике</p>
+  <h2>Параллельные агенты и модели по ролям</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="card" style="margin-bottom:24px">
+        <h3>11 сентября: 7 веток <code>worktree-agent-*</code> смержены за день</h3>
+        <p style="margin:0">Субагенты получают по задаче из плана, каждый в своём worktree, затем ревью и мерж.</p>
+      </div>
+      <div class="card">
+        <h3>Облачные сессии</h3>
+        <p style="margin:0">Ветка <code>claude/compassionate-gates-…</code> — сессия, запущенная не с ноутбука.</p>
+      </div>
+    </div>
+    <div class="col">
+      <h3>Кто соавтор коммитов</h3>
+      <table>
+        <tr><th>модель</th><th>коммитов</th><th>роль</th></tr>
+        <tr><td>Sonnet 5</td><td><b>280</b></td><td>исполнитель по плану</td></tr>
+        <tr><td>Opus 5 / 5.5</td><td><b>53</b></td><td>спеки, планы, сложное</td></tr>
+      </table>
+      <p class="note-hand" style="margin-top:24px">Дорогая модель думает, быстрая делает.</p>
+    </div>
+  </div>
+  <aside class="notes">В RTC почти всё делал один Opus. В itffm разделение ролей: Opus пишет спеку и план, Sonnet исполняет задачи плана, субагенты работают параллельно в worktree. Это и есть «команда агентов» L7 в минимальном виде. ~2.5 мин.</aside>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-title="Что осталось человеку">
+  <p class="kicker">новое узкое место</p>
+  <h2>Что тесты не ловят</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>Вешенка рисовалась плоским блином: генератор ставил ножку по центру</li>
+        <li>Химеры: шляпка 25 см на ножке 6 см</li>
+        <li>243 гриба по 5 мешей → тысяча draw calls, повис даже headless-браузер</li>
+      </ul>
+      <p style="margin-top:24px">Ответ — инструмент «посмотреть глазами»: <code>npm run silhouette-sheet</code>, все силуэты видов на одном листе.</p>
+    </div>
+    <div class="col" style="flex:.75">
+      <div class="card">
+        <h3>Узкое место сместилось</h3>
+        <p>С «написать код» на «проверить результат».</p>
+        <p class="muted" style="margin:0">Агенты пишут быстрее, чем я успеваю посмотреть. Ревью и визуальная проверка — это теперь главная работа человека.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Все три примера записаны в разделе 0 дизайн-документа. Ни один unit-тест их бы не поймал, нужен был глаз. Поэтому стоит строить инструменты, которые сжимают проверку: контактный лист, boot-check, отладочный readout в паузе. ~2 мин.</aside>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-title="Сравнение">
+  <p class="kicker">итого по ступенькам</p>
+  <h2>Что поменялось от проекта к проекту</h2>
+  <table>
+    <tr><th></th><th>Race the City</th><th>remote-vm-dev</th><th>itffm</th></tr>
+    <tr><td><b>Ступенька</b></td><td>L4 → L5</td><td>L5 → L6</td><td>L6 → L7</td></tr>
+    <tr><td><b>Агентов</b></td><td>один, в моём терминале</td><td>N сессий на VM</td><td>субагенты в worktree + облако</td></tr>
+    <tr><td><b>Модели</b></td><td>Opus на всё</td><td>любой провайдер</td><td>Opus планирует, Sonnet делает</td></tr>
+    <tr><td><b>Память</b></td><td>AGENTS.md, TODO</td><td>ветка = сессия</td><td>CLAUDE.md, спеки с разделом 0</td></tr>
+    <tr><td><b>Узкое место</b></td><td>мой сон</td><td>ноутбук</td><td>ревью и «посмотреть глазами»</td></tr>
+  </table>
+  <aside class="notes">Сводная таблица — сфотографировать её и уйти. ~1 мин.</aside>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-title="Забрать с собой">
+  <p class="kicker">что можно унести в свою команду завтра</p>
+  <h2>Пять правил</h2>
+  <ul style="font-size:32px">
+    <li><b>Спека до кода.</b> Агент исполняет план. Пустой промпт порождает импровизацию</li>
+    <li><b>Контракт в репозитории.</b> AGENTS.md / CLAUDE.md, инварианты, грабли. Агент не помнит, репозиторий помнит</li>
+    <li><b>Проверка запуска, а не только тестов.</b> boot-check ловит то, что зелёный CI пропускает</li>
+    <li><b>Один агент — один worktree.</b> Без этого параллельность превращается в конфликты</li>
+    <li><b>Инструменты для глаз.</b> Сжимайте ревью: контактные листы, readout, 👀 в changelog</li>
+  </ul>
+  <aside class="notes">Главный слайд для практиков. ~1.5 мин.</aside>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-title="L8–L9">
+  <p class="kicker">что дальше</p>
+  <h2>L8 и L9: рой и экосистема</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="ladder" style="margin-bottom:36px">
+        <div class="rung on"><b>L5</b>полный доступ</div>
+        <div class="rung on"><b>L6</b>параллельно</div>
+        <div class="rung me"><b>L7</b>я здесь</div>
+        <div class="rung"><b>L8</b>рой</div>
+        <div class="rung"><b>L9</b>экосистема</div>
+      </div>
+      <p>Чтобы подняться выше, нужно не больше агентов, а <b>автоматическая проверка</b>: агент-ревьюер, визуальная регрессия, плей-тест ботом.</p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <h3>Из бэклога</h3>
+        <ul><li>Живая погода и сезонность из реальных данных</li><li>Новые слои OSM</li><li>LAN-мультиплеер в RTC (ветка уже есть)</li><li>Фото видов через ETL в itffm</li></ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Честно: L8–L9 у меня пока нет. Пока ревью делает человек, количество агентов упирается в человека. Затравка на следующий доклад. ~1.5 мин.</aside>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-title="Вопросы">
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+    <p class="kicker">спасибо!</p>
+    <h1>Вопросы?</h1>
+    <div class="row" style="margin-top:24px">
+      <div class="card col"><h3>🚗 Race the City</h3><p style="margin:0"><a href="https://race-the-city.games" target="_blank" rel="noopener">race-the-city.games</a></p></div>
+      <div class="card col"><h3>🍄 itffm</h3><p style="margin:0"><a href="https://kryadov.github.io/itffm/" target="_blank" rel="noopener">kryadov.github.io/itffm</a></p></div>
+      <div class="card col"><h3>🖥 remote VM</h3><p style="margin:0"><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">kryadov/claude-remote-vm-dev</a></p></div>
+    </div>
+    <p class="muted" style="margin-top:36px;font-size:26px">Слайды: kryadov.github.io/batumi-meetup-1 · Константин Рядов · github.com/kryadov</p>
+  </div>
+  <aside class="notes">~2 мин на вопросы. Заготовки ответов: стоимость (подписка или API), качество кода (28k строк, strict TS, 100+ тестов), что делать, если компании нельзя в облако (VM + Bedrock или Vertex в своём аккаунте).</aside>
+</section>
+
+</div></div>
+
+<div id="progress"></div>
+<div id="notes-panel"><div class="t" id="notes-title"></div><div id="notes-body"></div></div>
+<div id="nav"><button id="prev" aria-label="Назад">←</button><span id="counter"></span><button id="next" aria-label="Вперёд">→</button><button id="notes-btn">N</button><button id="fs-btn">F</button></div>
+
+<script>
+(function () {
+  // commits per hour of day, race-the-city git log (author time)
+  var hours = [13,20,20,33,25,11,15,2,0,0,8,17,19,30,22,32,33,17,15,17,5,18,36,27];
+  var max = Math.max.apply(null, hours);
+  var chart = document.getElementById('hours-chart');
+  var axis = document.getElementById('hours-axis');
+  hours.forEach(function (v, h) {
+    var b = document.createElement('div');
+    b.className = 'b' + (h < 7 ? ' night' : '');
+    b.style.height = (v / max * 100) + '%';
+    b.title = h + ':00 — ' + v;
+    b.innerHTML = '<span>' + v + '</span>';
+    chart.appendChild(b);
+    var a = document.createElement('div');
+    a.textContent = h % 3 === 0 ? String(h).padStart(2, '0') : '';
+    axis.appendChild(a);
+  });
+
+  var slides = Array.prototype.slice.call(document.querySelectorAll('section.slide'));
+  var stage = document.getElementById('stage');
+  var cur = 0;
+  var notesOn = false;
+  try { notesOn = localStorage.getItem('deck-notes') === '1'; } catch (e) {}
+
+  function fit() {
+    var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900);
+    stage.style.transform = 'scale(' + s + ')';
+  }
+  function show(i) {
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, k) { s.classList.toggle('active', k === cur); });
+    document.getElementById('progress').style.width = ((cur + 1) / slides.length * 100) + '%';
+    document.getElementById('counter').textContent = (cur + 1) + ' / ' + slides.length;
+    var n = slides[cur].querySelector('.notes');
+    document.getElementById('notes-title').textContent = (cur + 1) + '. ' + (slides[cur].dataset.title || '');
+    document.getElementById('notes-body').textContent = n ? n.textContent : '';
+    document.getElementById('notes-panel').classList.toggle('on', notesOn);
+    if (location.hash !== '#' + (cur + 1)) history.replaceState(null, '', '#' + (cur + 1));
+  }
+  function fromHash() { var n = parseInt(location.hash.slice(1), 10); return isNaN(n) ? 0 : n - 1; }
+  function toggleNotes() {
+    notesOn = !notesOn;
+    try { localStorage.setItem('deck-notes', notesOn ? '1' : '0'); } catch (e) {}
+    show(cur);
+  }
+  function fullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+    else document.exitFullscreen && document.exitFullscreen();
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Enter') { e.preventDefault(); show(cur + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); show(cur - 1); }
+    else if (k === 'Home') show(0);
+    else if (k === 'End') show(slides.length - 1);
+    else if (k === 'n' || k === 'N' || k === 'т' || k === 'Т') toggleNotes();
+    else if (k === 'f' || k === 'F' || k === 'а' || k === 'А') fullscreen();
+  });
+  var tx = null;
+  document.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (tx === null) return;
+    var dx = e.changedTouches[0].clientX - tx; tx = null;
+    if (Math.abs(dx) > 50) show(cur + (dx < 0 ? 1 : -1));
+  });
+  document.getElementById('prev').onclick = function () { show(cur - 1); };
+  document.getElementById('next').onclick = function () { show(cur + 1); };
+  document.getElementById('notes-btn').onclick = toggleNotes;
+  document.getElementById('fs-btn').onclick = fullscreen;
+  window.addEventListener('resize', fit);
+  window.addEventListener('hashchange', function () { show(fromHash()); });
+  fit();
+  show(fromHash());
+})();
+</script>
+</body>
+</html>
