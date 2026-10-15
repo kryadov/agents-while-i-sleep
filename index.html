@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Лестница агентов</title>
-<meta name="description" content="Агенты работают, пока я сплю — после работы под NDA: две игры, одна VM и 436 релизов. Подъём по лестнице AI-разработки L1→L9. Batumi meetup, Константин Рядов.">
+<title>Агенты работают, даже когда я сплю</title>
+<meta name="description" content="Агенты работают, даже когда я сплю — если есть бэклог или есть что улучшать, в том числе по секьюрити. Две игры, одна VM и 436 релизов. Подъём по лестнице AI-разработки L1→L9. Batumi meetup, Константин Рядов.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -144,35 +144,53 @@
 <section class="slide" data-title="Титул">
   <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
     <p class="kicker">Batumi meetup · доклад</p>
-    <h1>Агенты работают,<br>пока я сплю</h1>
-    <p style="font-size:38px" class="muted">после работы под NDA: две игры, одна VM и 436 релизов</p>
+    <h1>Агенты работают,<br>даже когда я сплю</h1>
+    <p style="font-size:38px" class="muted">если есть бэклог или есть что улучшать —<br>в том числе по секьюрити</p>
     <div class="ladder" style="margin-top:48px;max-width:1100px">
       <div class="rung"><b>L1</b></div><div class="rung"><b>L2</b></div><div class="rung"><b>L3</b></div>
       <div class="rung on"><b>L4</b></div><div class="rung on"><b>L5</b></div><div class="rung on"><b>L6</b></div>
       <div class="rung on"><b>L7</b></div><div class="rung"><b>L8</b></div><div class="rung"><b>L9</b></div>
     </div>
   </div>
-  <div class="footer"><span>Константин Рядов · github.com/kryadov</span><span>← → листать · N заметки · F полный экран</span></div>
+  <div class="footer"><span>Константин Рядов · github.com/kryadov</span><span></span></div>
   <aside class="notes">Представиться. Обещание доклада: на трёх настоящих проектах показать, как меняется работа на каждой ступеньке лестницы. Никаких «AI заменит программистов», только цифры из git log. ~1 мин.</aside>
 </section>
 
+<!-- 1-about -->
+<section class="slide" data-title="Обо мне">
+  <p class="kicker">обо мне</p>
+  <div class="row grow" style="align-items:center;gap:64px">
+    <img src="me.jpg" alt="Константин Рядов" style="width:300px;height:300px;border-radius:50%;object-fit:cover;border:6px solid #fff;box-shadow:0 6px 24px rgba(30,40,55,.15)">
+    <div class="col">
+      <h2 style="margin-bottom:16px">Константин Рядов</h2>
+      <p style="font-size:34px">JVM-инженер, ставший AI-инженером.<br>SDLC — моя жизнь: от JVM-тулинга, которым занимался годами, до AI-агентов, которых строю сейчас.</p>
+      <p class="muted" style="font-size:26px;margin:0">блог · подкаст · музыка · github.com/kryadov</p>
+    </div>
+    <div class="qr-card card" style="flex:0 0 auto">
+      <img src="qr/site.svg" alt="QR: kryadov.github.io">
+      <p><a href="https://kryadov.github.io/" target="_blank" rel="noopener">kryadov.github.io</a></p>
+    </div>
+  </div>
+  <aside class="notes">Коротко о себе, 30 секунд. QR ведёт на сайт: там проекты, блог (в том числе про spec-driven development) и подкаст.</aside>
+</section>
+
 <!-- 1a -->
-<section class="slide" data-title="Днём и вечером">
+<section class="slide" data-title="На работе и после">
   <p class="kicker">откуда этот доклад</p>
-  <h2>Днём — энтерпрайз. Вечером — без рамок</h2>
+  <h2>На работе — то, что нельзя показать.<br>После работы — то, что можно</h2>
   <div class="row" style="align-items:flex-start">
     <div class="card col">
-      <h3>Днём: под NDA</h3>
-      <p>Делаю AI-агентов для корпоративных клиентов. Деталей рассказать не могу, но кое-что уже анонсировано публично:</p>
+      <h3>На работе: внутренние продукты</h3>
+      <p>Делаю AI-агентов для внутренних продуктов компании. Показать их не могу, наружу выходят только анонсы в прессе:</p>
       <p style="font-size:24px;margin:0"><a href="https://www.azul.com/newsroom/azul-launches-ai-assistant-that-tells-it-and-security-teams-where-java-licensing-and-security-risk-is-hiding" target="_blank" rel="noopener">Azul Intelligence Cloud AI Assistant</a> <span class="muted">(23.09.2026)</span>: вопросы на естественном языке о Java в проде, где прячутся риски по лицензиям и безопасности. Режим read-only.</p>
     </div>
     <div class="card col">
-      <h3>Вечером: выйти за рамки</h3>
+      <h3>После работы: выйти за рамки</h3>
       <p>Во всех смыслах: другой домен (игры), другой стек (3D в браузере), другие правила (никакого бюджета на инфраструктуру).</p>
       <p class="note-hand" style="margin:0">Всё, что тут показываю, открыто: код, git log, демо.</p>
     </div>
   </div>
-  <aside class="notes">Контраст: на работе процессы, периметр, NDA. Вечером песочница, где можно проверить то, что на работе проверять дорого. Обратно на работу переносится процесс (и remote-vm-dev). ~1.5 мин.</aside>
+  <aside class="notes">Контраст: на работе процессы и периметр, а показать можно только пресс-релиз. После работы песочница, где можно проверить то, что на работе проверять дорого. Агенты работают и там, и там. Обратно на работу переносится процесс (и remote-vm-dev). ~1.5 мин.</aside>
 </section>
 
 <!-- 1b -->
@@ -455,6 +473,32 @@
   </div>
   <p class="note-hand" style="margin-top:28px">Один bootstrap-скрипт, идемпотентный. Спека 15 августа, рабочая версия через две недели. Тоже с агентом.</p>
   <aside class="notes">Для тех, у кого «нам нельзя в облако»: вот как поднять L6 внутри периметра. ~1.5 мин.</aside>
+</section>
+
+<!-- 13b -->
+<section class="slide" data-title="Секьюрити">
+  <div class="qr-mini"><img src="qr/security-commit.svg" alt="QR: коммит 1fd1933 в kryadov/race-the-city">коммит</div>
+  <p class="kicker">«в том числе по секьюрити»</p>
+  <h2>Что дать агенту, пока сплю: npm audit 9 → 0</h2>
+  <div class="row grow">
+    <div class="col">
+      <p><a href="https://github.com/kryadov/race-the-city/commit/1fd1933ab31d3de35b931636b2fdaaa007c23a72" target="_blank" rel="noopener">race-the-city v0.149.1</a>, 15 октября 2026, один коммит:</p>
+      <ul>
+        <li><b>9 уязвимостей → 0</b>: 2 critical, 3 high, 4 moderate, все в dev/build-тулчейне</li>
+        <li>Vite 5 → 8, Vitest 2 → 5: RCE в tinypool, path traversal в @vitest/mocker, утечка в dev-сервере esbuild</li>
+        <li>Breaking change починен по дороге: Vite 8 собирает на Rolldown, <code>manualChunks</code> → <code>codeSplitting</code></li>
+        <li><code>boot-check</code> получил <code>BOOT_CHECK_PORT</code>, чтобы параллельные чекауты не конфликтовали</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.7">
+      <div class="card">
+        <h3>Почему это идеальная задача на ночь</h3>
+        <ul><li>Чёткий критерий: <code>npm audit</code> = 0</li><li>Страховка: тесты + boot-check</li><li>Скучно человеку, не скучно агенту</li></ul>
+        <p class="muted" style="margin:14px 0 0">В CHANGELOG: 👀 «ничего не должно выглядеть иначе».</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Раскрываем подзаголовок доклада. Бэклог и секьюрити-апдейты — лучшие задачи для фоновой работы агента: критерий готовности формальный, проверка автоматическая, мажорные апдейты с breaking changes агент проходит сам. Утром смотришь на зелёный CI и одну строку в changelog. ~2 мин.</aside>
 </section>
 
 <!-- 14 -->
