@@ -1,0 +1,17 @@
+# editors / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# tooling (QR generation, screenshots) — keep it out of the published site
+node_modules/
+package-lock.json
+*.log
+screenshots/
+tmp/
+
+# local Claude Code settings
+.claude/settings.local.json
