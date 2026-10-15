@@ -18,7 +18,10 @@ Published at https://kryadov.github.io/batumi-meetup-1/ by GitHub Pages from `ma
 ## Files
 
 ```
-index.html     the whole deck: inline CSS + JS, one <section class="slide"> per slide
+index.html     the deck in Russian: one <section class="slide"> per slide
+en.html        the same deck in English, slide for slide
+deck.css       shared styles for both languages
+deck.js        shared navigation: keys, swipes, notes, fit-to-window, language link
 README.md      plan of the talk: blocks, timing, slide ranges
 ANNOUNCE.md    meetup announcement text (Обо мне + Доклад), pasted into Telegram/posters
 l0-l9.png      the ladder picture (slide 5), credited to alekseilitvinau.com/edu
@@ -34,7 +37,11 @@ qr/*.svg       static QR codes — no network needed at the venue
 - **Facts come from git, not memory.** Every number on a slide (commits, tags, dates, hours, model
   co-author counts) must be re-derivable from `git log` of the project repos. Re-check before changing one.
   If a claim cannot be verified, mark it as a hypothesis or ask.
-- **Language.** Slides and announcement are in Russian; code, commit messages and this file in English.
+- **Language.** Slides exist in Russian (`index.html`) and English (`en.html`); the announcement is Russian;
+  code, commit messages and this file are in English.
+- **Two decks, one structure.** Any change to a slide's content or order goes into both `index.html` and
+  `en.html` in the same commit, so slide `#n` is the same slide in both (the EN/RU link keeps the number).
+  Translate for meaning, not word by word: idiomatic English, same facts and numbers, same length budget.
 - **Wording.** No NDA framing: the author is an independent engineer (Georgian IE), co-founder & CTO of
   Bulka.AI; Azul is a client. Work products are internal — only press announcements can be shown.
   The projects had no monetization goal.
@@ -43,6 +50,7 @@ qr/*.svg       static QR codes — no network needed at the venue
 
 ## Deck conventions
 
+- Styles live in `deck.css`, behaviour in `deck.js`; keep the HTML files free of inline `<style>`/`<script>`.
 - Stage is a fixed 1600×900 canvas scaled to the window. Text must fit without scrolling — headings
   ideally one line, at most two.
 - Building blocks already in the CSS: `.kicker`, `.card`, `.stats/.stat`, `.flow/.step`, `.badge`,

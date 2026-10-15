@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents keep working while I sleep</title>
+<meta name="description" content="Agents keep working while I sleep — as long as there's a backlog or something to improve, security included. Two games, one VM and 436 releases. Climbing the AI-development ladder from L1 to L9. Konstantin Ryadov.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="deck.css">
+<link rel="alternate" hreflang="ru" href="index.html">
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- 1 -->
+<section class="slide" data-title="Title">
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+    <h1>Agents keep working,<br>even while I sleep</h1>
+    <p style="font-size:38px" class="muted">as long as there's a backlog or something to improve —<br>security included</p>
+    <div class="ladder" style="margin-top:48px;max-width:1100px">
+      <div class="rung"><b>L1</b></div><div class="rung"><b>L2</b></div><div class="rung"><b>L3</b></div>
+      <div class="rung on"><b>L4</b></div><div class="rung on"><b>L5</b></div><div class="rung on"><b>L6</b></div>
+      <div class="rung on"><b>L7</b></div><div class="rung"><b>L8</b></div><div class="rung"><b>L9</b></div>
+    </div>
+  </div>
+  <div class="footer"><span>Konstantin Ryadov · github.com/kryadov</span><span></span></div>
+  <aside class="notes">Introduce myself. The promise of the talk: three real projects showing how the work changes on each rung of the ladder. No “AI will replace programmers” — only numbers from git log. ~1 min.</aside>
+</section>
+
+<!-- 1-about -->
+<section class="slide" data-title="About me">
+  <p class="kicker">about me</p>
+  <div class="row grow" style="align-items:center;gap:64px">
+    <img src="me.jpg" alt="Konstantin Ryadov" style="width:300px;height:300px;border-radius:50%;object-fit:cover;border:6px solid #fff;box-shadow:0 6px 24px rgba(30,40,55,.15)">
+    <div class="col">
+      <h2 style="margin-bottom:16px">Konstantin Ryadov</h2>
+      <p style="font-size:34px;margin-bottom:12px">Co-founder &amp; CTO of <a href="https://bulka.ai/" target="_blank" rel="noopener">Bulka.AI</a>, an AI copilot for payment operations.</p>
+      <p style="font-size:28px">A JVM engineer turned AI engineer: 19 years in payments, then JVM security at Azul, now agents. The SDLC is my life.</p>
+      <p class="muted" style="font-size:26px;margin:0">blog · podcast · music · github.com/kryadov</p>
+    </div>
+    <div class="qr-card card" style="flex:0 0 auto">
+      <img src="qr/site.svg" alt="QR: kryadov.github.io">
+      <p><a href="https://kryadov.github.io/" target="_blank" rel="noopener">kryadov.github.io</a></p>
+    </div>
+  </div>
+  <aside class="notes">Thirty seconds about myself. The QR code leads to my site: projects, the blog (including posts on spec-driven development) and the podcast.</aside>
+</section>
+
+<!-- 1a -->
+<section class="slide" data-title="Clients and my own projects">
+  <p class="kicker">where this talk comes from</p>
+  <h2>For clients — what I can't show.<br>For myself — what I can</h2>
+  <div class="row" style="align-items:flex-start">
+    <div class="card col">
+      <h3>For clients: internal products</h3>
+      <p>I build AI agents for my clients' internal products. One public example:</p>
+      <p style="font-size:24px;margin:0"><a href="https://www.azul.com/newsroom/azul-launches-ai-assistant-that-tells-it-and-security-teams-where-java-licensing-and-security-risk-is-hiding" target="_blank" rel="noopener">Azul Intelligence Cloud AI Assistant</a> <span class="muted">(Sep 23, 2026)</span>: ask plain-language questions about Java in production and find where licensing and security risks are hiding. Read-only.</p>
+    </div>
+    <div class="card col">
+      <h3>For myself: off the beaten track</h3>
+      <p>In every sense: a different domain (games), a different stack (3D in the browser), different rules (zero infrastructure budget).</p>
+      <p><b>Not for profit</b>: no app stores, no ads, no monetization. The games are free.</p>
+      <p class="note-hand" style="margin:0">Everything I show here is open: code, git log, demos.</p>
+    </div>
+  </div>
+  <aside class="notes">The contrast: clients have processes and a perimeter, and all you can show is a press release. My own projects are a sandbox where I can try things that are expensive to try on a client's codebase. Agents work in both places. What travels back to clients is the process (and remote-vm-dev). A bridge from the previous talk, if it fits: “The previous speaker went all the way to the app stores. My path is the opposite: no stores, no money — the goal is to see how agents behave when you give them freedom.” ~1.5 min.</aside>
+</section>
+
+<!-- 1b -->
+<section class="slide" data-title="Self-imposed limits">
+  <p class="kicker">rules of the experiment</p>
+  <h2>Self-imposed limits: $20 + $100</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="stats" style="grid-template-columns:1fr 1fr;margin-bottom:28px">
+        <div class="stat"><div class="n">$20</div><div class="l">Claude Pro subscription, limits and all</div></div>
+        <div class="stat"><div class="n">$100</div><div class="l">OpenRouter: GLM, Kimi — open-weight models</div></div>
+      </div>
+      <p>Paying for Max is easy. The catch is that then you never learn the one thing that matters.</p>
+    </div>
+    <div class="col" style="flex:.9">
+      <div class="card">
+        <h3>The question behind it all</h3>
+        <p class="quote" style="font-size:30px">For which kinds of tasks does <b>medium</b> effort do as well as <b>x-high</b>?</p>
+        <p class="muted" style="margin:18px 0 0">A budget makes you count: a cheap model and low effort wherever they're good enough, the expensive one only where nothing else will do.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Constraints as a research tool: an unlimited plan hides inefficiency. The answer to the effort question comes near the end, after two projects. ~1.5 min.</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="The ladder">
+  <p class="kicker">the lay of the land</p>
+  <h2 style="margin-bottom:12px">The L1 → L9 ladder</h2>
+  <div class="grow"><img class="ladder-img" src="l0-l9.png" alt="Levels of AI-assisted development: L1 code by hand, L2 free chats, L3 paid chats, L4 supervised agent, L5 full access, L6 parallel agents, L7 agent team, L8 swarm, L9 ecosystem"></div>
+  <p class="muted" style="font-size:22px;margin:8px 0 0">Nine levels of AI-assisted development, from Aleksei Litvinau's course “AI-Assisted Engineering”: <a href="https://alekseilitvinau.com/edu/" target="_blank" rel="noopener">alekseilitvinau.com/edu</a></p>
+  <aside class="notes">Ask the room: hands up if you're at L1–L3 (chats), at L4–L5 (an agent in the repo), and who has ever run several agents in parallel. Most teams are at L1–L3 right now. This talk is about what changes at L4–L7, and what I had to build to get there. ~2 min.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="Three rungs">
+  <p class="kicker">what this talk is about</p>
+  <h2>Three projects, three rungs</h2>
+  <div class="row grow" style="align-items:stretch">
+    <div class="card col">
+      <span class="badge sm">L4→L5</span>
+      <h3 style="margin-top:18px">Race the City</h3>
+      <p class="muted">July 2026</p>
+      <p>Racing through any city in the world. One agent with full access, a release every half hour.</p>
+      <p class="hand" style="font-size:32px">the bottleneck is me</p>
+    </div>
+    <div class="card col">
+      <span class="badge sm">L5→L6</span>
+      <h3 style="margin-top:18px">claude-remote-vm-dev</h3>
+      <p class="muted">August 2026</p>
+      <p>Claude Code sessions on a VM inside the perimeter. They keep going with the laptop closed.</p>
+      <p class="hand" style="font-size:32px">infrastructure for the next rung</p>
+    </div>
+    <div class="card col">
+      <span class="badge sm">L6→L7</span>
+      <h3 style="margin-top:18px">itffm 🍄</h3>
+      <p class="muted">September 2026</p>
+      <p>A mushroom forest modeled on a real place. Parallel agents in worktrees, a model for each role.</p>
+      <p class="hand" style="font-size:32px">the bottleneck is review</p>
+    </div>
+  </div>
+  <aside class="notes">The storyline: each project hit its own bottleneck, and the next project grew out of trying to get past it. ~1 min.</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="Race the City">
+  <div class="qr-mini"><img src="qr/race-the-city.svg" alt="QR: github.com/kryadov/race-the-city">repository</div>
+  <p class="kicker">rung L4 → L5 · Race the City</p>
+  <h2>Type in a city and drive</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>A low-poly version of a <b>real</b> city: roads, buildings, bridges, rails, water, terrain</li>
+        <li>19 cars, rivals, time trials, autopilot</li>
+        <li>Traffic, pedestrians, trams, ships, weather, day and night</li>
+        <li>All in the browser, <b>no backend</b></li>
+      </ul>
+      <p style="margin-top:28px">▶ <a href="https://race-the-city.games" target="_blank" rel="noopener">race-the-city.games</a></p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <p class="note-hand" style="margin:0 0 8px">live demo:</p>
+        <p style="margin:0">Batumi → 🎲 random city → <code>V</code> neon view</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">DEMO, 60–90 s: open the site, type “Batumi”, drive along the boulevard. Then 🎲 to land in a random city. If the network is bad, show a cached city (IndexedDB). ~3 min including the demo.</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="RTC in numbers">
+  <p class="kicker">Race the City in numbers (git log)</p>
+  <h2>164 releases in the first three days</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">100</div><div class="l">release tags on day one, July 16</div></div>
+    <div class="stat"><div class="n">435</div><div class="l">commits, 360 of them in the first 4 days</div></div>
+    <div class="stat"><div class="n">28.6k</div><div class="l">lines of TypeScript in <code>src/</code></div></div>
+    <div class="stat"><div class="n">104</div><div class="l">test files (Vitest)</div></div>
+  </div>
+  <div class="row" style="margin-top:40px">
+    <div class="col"><p><b>v0.1 → v0.149</b>: 310 tags, and every tag is a deployed build and a GitHub Release.</p></div>
+    <div class="col"><p><b>352 of 435</b> commits co-authored by <code>Claude Opus</code>. My share: specs, play-tests and decisions.</p></div>
+  </div>
+  <aside class="notes">Numbers from git, not from marketing. Make the point: a release roughly every 30 minutes isn't heroics, it's a consequence of the architecture and the process (next slides). ~1.5 min.</aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="The world as content">
+  <p class="kicker">why this is possible at all</p>
+  <h2>The whole world is source data</h2>
+  <div class="flow" style="margin-bottom:36px">
+    <div class="step"><b>Nominatim</b>“Batumi” → coordinates</div><div class="arr">→</div>
+    <div class="step"><b>Overpass</b>OSM in a 1 km bbox</div><div class="arr">→</div>
+    <div class="step"><b>Terrain Tiles</b>AWS elevation, Terrarium format</div><div class="arr">→</div>
+    <div class="step"><b>Three.js</b>meshes, collisions, road graph</div><div class="arr">→</div>
+    <div class="step"><b>IndexedDB</b>the city, cached</div>
+  </div>
+  <div class="row">
+    <div class="card col"><h3>What you get</h3><ul><li>Endless content without level designers</li><li>Something the agent can work with: a standard, well-documented data format</li></ul></div>
+    <div class="card col"><h3>The catch</h3><ul><li>Overpass answers 429 → 30 s timeout, three mirrors, a stale cache as the fallback</li><li>Dirty data: water 4 m above the river, bridges with no height</li></ul></div>
+  </div>
+  <aside class="notes">The key point for the AI part: agents do best where the data is open and the format is standard. OSM is perfect “content” that nobody has to draw. The same trick later moves over to itffm. ~2 min.</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="No server: why">
+  <p class="kicker">architecture, not agents</p>
+  <h2>OSM + elevation + weather, no server</h2>
+  <div class="flow" style="margin-bottom:30px">
+    <div class="step"><b>openstreetmap.org</b>Nominatim, Overpass</div>
+    <div class="step"><b>AWS Terrain Tiles</b>S3, Terrarium PNG</div>
+    <div class="step"><b>Open-Meteo</b>live weather</div>
+    <div class="arr">→</div>
+    <div class="step" style="flex:1.3;border-color:var(--blue)"><b>browser</b>Three.js + IndexedDB, static files on Pages</div>
+  </div>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card"><h3>$0 and zero ops</h3><p style="margin:0">Nothing to monitor, patch or scale. The CDN takes the load, open APIs serve the data. <b>No infrastructure bill → no need to monetize.</b></p></div>
+    <div class="card"><h3>Nothing to leak</h3><p style="margin:0">No database, no accounts, no secrets. A player's progress stays in their own browser.</p></div>
+    <div class="card"><h3>Deploy = tag</h3><p style="margin:0">Rolling back means going to the previous tag. Fork it, and you have your own copy of the game, also for free.</p></div>
+  </div>
+  <aside class="notes">This part isn't about agents, it's about architecture in general. Keyless public APIs with CORS turn the browser into a full client for the whole world's data. You need a server only to store other people's data or to hide keys. Neither applies here. ~2 min.</aside>
+</section>
+
+<!-- 7b -->
+<section class="slide" data-title="No server: the rules">
+  <p class="kicker">so that it works instead of falling over</p>
+  <h2>The price: you're a guest on someone else's infrastructure</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li><b>Keyless APIs only.</b> A key in a static site is a public key</li>
+        <li><b>Respect the usage policy.</b> Nominatim: 1 request per second; Overpass answers 429</li>
+        <li><b>Caching is mandatory.</b> A city loaded once lives on in IndexedDB</li>
+        <li><b>Mirrors and timeouts.</b> 3 Overpass mirrors, 30 s, a stale cache as the fallback</li>
+        <li><b>Honest fallbacks.</b> No terrain → flat ground; no OSM → a procedural forest</li>
+        <li><b>Attribution.</b> OSM data under ODbL, © OpenStreetMap contributors</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.7">
+      <div class="card">
+        <h3>And a bonus for agents</h3>
+        <p>No server → no migrations, environments or secrets. You can hand the agent the entire release.</p>
+        <p class="muted" style="margin:0">Layer boundaries are written down in <code>AGENTS.md</code>: <code>geo/</code> knows nothing about Three.js, <code>world/</code> knows nothing about the network.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">The catch of going serverless: your availability is the availability of someone else's free services. Hence the cache, mirrors and fallbacks at every step. The pattern applies far beyond games: dashboards, maps, open-data visualizations. ~2 min.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-title="A release every 30 minutes">
+  <p class="kicker">pace as part of the architecture</p>
+  <h2>A release every ~30 minutes without falling apart</h2>
+  <div class="row grow">
+    <div class="card col"><h3>Version = deploy</h3><p>Every bump is a tag, a Release and a <code>CHANGELOG.md</code> entry marked 👀 “what to check in the play-test”.</p></div>
+    <div class="card col"><h3>boot-check</h3><p>Tests green, types clean, build passed — and the screen is black. Headless Chrome loads the built app and fails if it doesn't start.</p></div>
+    <div class="card col"><h3>TODO as a living backlog</h3><p>Play-test → the bug goes in right away → “bugs first, polish later”. No roadmap on paper.</p></div>
+  </div>
+  <aside class="notes">The boot-check story: a temporal dead zone (TDZ) in main.ts. No unit test loads main.ts, so everything was green while the game wouldn't start. Since then the check is mandatory for any change that touches main. ~2 min.</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="Where the agent got it wrong">
+  <p class="kicker">who really wrote the collision code</p>
+  <h2>Where the agent got it wrong — and how we caught it</h2>
+  <div class="row grow">
+    <div class="col">
+      <p class="quote">“An invisible wall in the middle of an ordinary road”<br><span class="muted" style="font-size:26px">play-test bug report, Paris, Île de la Cité, v0.148.1</span></p>
+      <ul style="margin-top:28px">
+        <li>The agent added a debug readout to the pause screen: <code>solid: quay@1.3m</code></li>
+        <li>The cause: the quay only had a lower bound. 1593 walls → 25</li>
+        <li>The same class of bug, <b>for the third time</b></li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.75">
+      <div class="card">
+        <h3>Takeaway</h3>
+        <p>The invariant went straight into TODO: <b>solid ⇒ visible</b>.</p>
+        <p class="muted" style="margin:0">The agent doesn't remember the last session. The repo does: AGENTS.md, TODO, CHANGELOG, tests.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">A human spotted the bug by eye; the agent built a diagnostic tool and found the cause. The important part: to keep it from happening a fourth time, the lesson has to be written where the agent will read it. ~2 min.</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="Spec → plan → code">
+  <p class="kicker">the L4 → L5 process</p>
+  <h2>Spec → plan → code → release</h2>
+  <div class="flow" style="margin-bottom:40px">
+    <div class="step"><b>brainstorm</b>a dialogue: what we build and why</div><div class="arr">→</div>
+    <div class="step"><b>spec</b><code>docs/superpowers/specs</code></div><div class="arr">→</div>
+    <div class="step"><b>plan</b>tasks with tests</div><div class="arr">→</div>
+    <div class="step"><b>code + TDD</b>agent</div><div class="arr">→</div>
+    <div class="step"><b>play-test</b>human</div>
+  </div>
+  <div class="row">
+    <div class="card col"><h3>Delegated</h3><ul><li>Code, tests, refactoring</li><li>Releases, CHANGELOG</li><li>Diagnosing bug reports</li></ul></div>
+    <div class="card col"><h3>Kept for myself</h3><ul><li>What to build, in what order</li><li>Looking at it with my own eyes</li><li>When to stop</li></ul></div>
+    <div class="card col"><h3>Bonus: an agent in CI</h3><p>Comment <code>/oc</code> on an issue or PR → opencode on GLM via OpenRouter, with the same superpowers skills.</p></div>
+  </div>
+  <aside class="notes">8 specs and 4 plans over the project. Superpowers skills set the process. Bonus: a cheap model in GitHub Actions answers /oc. That's the first step towards “an agent that works without me”. ~2 min.</aside>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="The bottleneck is me">
+  <p class="kicker">why the next rung was needed</p>
+  <h2>The bottleneck: me and my laptop</h2>
+  <div class="row grow">
+    <div class="col" style="flex:1.6">
+      <div class="bars" id="hours-chart" aria-label="Race the City commits by hour of day"></div>
+      <div class="hours" id="hours-axis"></div>
+      <p class="muted" style="font-size:22px;margin-top:10px">Race the City commits by hour of day, 435 in total</p>
+    </div>
+    <div class="col">
+      <p><b class="mono" style="color:var(--blue-ink);font-size:44px">137</b> commits between midnight and 7 a.m.</p>
+      <p>An agent session lives only as long as the laptop is open. Close the lid and the work stops.</p>
+      <p class="note-hand">Agents should work while I sleep. Not me working alongside them.</p>
+    </div>
+  </div>
+  <aside class="notes">An honest slide: a third of the commits are at night. One agent, and I'm its only operator. The only way to scale was to sleep less. Hence the next project. ~1.5 min.</aside>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="claude-remote-vm-dev">
+  <div class="qr-mini"><img src="qr/remote-vm.svg" alt="QR: github.com/kryadov/claude-remote-vm-dev">repository</div>
+  <p class="kicker">rung L5 → L6 · claude-remote-vm-dev</p>
+  <h2>Claude Code sessions on a VM inside the perimeter</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li><b>tmux</b> holds every session; <b>systemd + linger</b> survive disconnects and reboots</li>
+        <li>Each session gets its own <b>git worktree</b> and branch, so agents never share an index</li>
+        <li><code>rd-tui</code>: list sessions, attach, stop, start a new one</li>
+        <li>Pick a provider: <b>Vertex AI</b>, <b>Bedrock</b>, <b>Anthropic API</b></li>
+        <li>GitLab and GitHub, Enterprise Server included</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card" style="font-family:'JetBrains Mono',monospace;font-size:21px;line-height:1.55;background:#1f2731;color:#dfe7ef;border-color:#1f2731">
+        $ rd-start backend --session new-search<br>
+        $ rd-start backend --session login-fix \<br>&nbsp;&nbsp;&nbsp;&nbsp;--type bugfix<br>
+        $ rd-start backend --session try \<br>&nbsp;&nbsp;&nbsp;&nbsp;--provider bedrock<br>
+        <span style="color:#8fb7de"># close the laptop 💤</span><br>
+        $ rd-list --all
+      </div>
+      <p style="margin-top:20px;font-size:24px"><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">github.com/kryadov/claude-remote-vm-dev</a></p>
+    </div>
+  </div>
+  <aside class="notes">A typical loop: start a session, give it a task, close the laptop. In the morning, VS Code Remote-SSH for the diffs, rd-attach to answer the agent's questions, then a merge request. You can show the rd-tui gif from the README. ~2.5 min.</aside>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="For companies">
+  <p class="kicker">why a VM and not just a cloud agent</p>
+  <h2>For corporate development</h2>
+  <div class="row grow">
+    <div class="card col"><h3>Perimeter</h3><p>Code and tokens never leave the company network. The VM is the isolation boundary, so the agent can run <code>docker compose</code> without worry.</p></div>
+    <div class="card col"><h3>Secrets</h3><p>Provider credentials live in a 0600 file. Only the provider's <b>name</b> goes into tmux, so nothing shows up in <code>ps</code>.</p></div>
+    <div class="card col"><h3>Bedrock gotchas</h3><p>Without pinned models, the <code>opus</code> alias quietly falls back to a smaller model. WebSearch isn't available there.</p></div>
+  </div>
+  <p class="note-hand" style="margin-top:28px">One idempotent bootstrap script. Spec on August 15, a working version two weeks later. Built with an agent, too.</p>
+  <aside class="notes">For those who hear “we're not allowed in the cloud”: this is how you get L6 inside the perimeter. ~1.5 min.</aside>
+</section>
+
+<!-- 13b -->
+<section class="slide" data-title="Security">
+  <div class="qr-mini"><img src="qr/security-commit.svg" alt="QR: commit 1fd1933 in kryadov/race-the-city">commit</div>
+  <p class="kicker">“security included”</p>
+  <h2>What to give an agent overnight: npm audit 9 → 0</h2>
+  <div class="row grow">
+    <div class="col">
+      <p><a href="https://github.com/kryadov/race-the-city/commit/1fd1933ab31d3de35b931636b2fdaaa007c23a72" target="_blank" rel="noopener">race-the-city v0.149.1</a>, October 15, 2026, a single commit:</p>
+      <ul>
+        <li><b>9 vulnerabilities → 0</b>: 2 critical, 3 high, 4 moderate, all in the dev/build toolchain</li>
+        <li>Vite 5 → 8, Vitest 2 → 5: RCE in tinypool, path traversal in @vitest/mocker, a leak in the esbuild dev server</li>
+        <li>A breaking change fixed along the way: Vite 8 builds with Rolldown, <code>manualChunks</code> → <code>codeSplitting</code></li>
+        <li><code>boot-check</code> got <code>BOOT_CHECK_PORT</code> so parallel checkouts don't collide</li>
+      </ul>
+    </div>
+    <div class="col" style="flex:.7">
+      <div class="card">
+        <h3>Why it's the perfect overnight task</h3>
+        <ul><li>A clear finish line: <code>npm audit</code> = 0</li><li>A safety net: tests + boot-check</li><li>Boring for a human, not for an agent</li></ul>
+        <p class="muted" style="margin:14px 0 0">In the CHANGELOG: 👀 “nothing should look different”.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">This is where the subtitle pays off. The backlog and security updates are the best background work for an agent: the definition of done is formal, the check is automatic, and the agent gets through major upgrades with breaking changes on its own. In the morning you look at a green CI and one line in the changelog. ~2 min.</aside>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="itffm">
+  <div class="qr-mini"><img src="qr/itffm.svg" alt="QR: github.com/kryadov/itffm">repository</div>
+  <p class="kicker">rung L6 → L7 · itffm 🍄</p>
+  <h2>A quiet walk through a real forest</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>A first-person mushroom-foraging game plus a field guide</li>
+        <li>The forest is built from a real place: <b>the same OSM + Terrain Tiles</b></li>
+        <li>Birch boletes grow under birches, oyster mushrooms on fallen logs</li>
+        <li>A cabin, a campfire, fishing, quests, a drone, a mine</li>
+      </ul>
+      <p style="margin-top:24px">▶ <a href="https://kryadov.github.io/itffm/" target="_blank" rel="noopener">kryadov.github.io/itffm</a></p>
+    </div>
+    <div class="col" style="flex:.9">
+      <div class="card">
+        <h3>Not a single 3D model</h3>
+        <p class="mono" style="font-size:21px;line-height:1.6;margin:0">data/species/*.yaml<br>&nbsp;├─ morphology → 3D model<br>&nbsp;├─ ecology &nbsp;&nbsp;&nbsp;→ where and when it grows<br>&nbsp;└─ name/text &nbsp;→ field guide</p>
+        <p style="margin-top:16px;margin-bottom:0">A new species is a line of data, not a ticket for a 3D artist.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">DEMO, 60 s: walk into the forest, find a mushroom, pick it up, turn it around, open the field guide. The parallel with RTC: there, OSM replaces the level designer; here, YAML replaces the 3D artist. It's easier for an agent to generate data and generators than assets. ~3 min with the demo.</aside>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="itffm in numbers">
+  <p class="kicker">itffm in numbers (git log)</p>
+  <h2>17 days from spec to v0.103</h2>
+  <div class="stats">
+    <div class="stat"><div class="n">375</div><div class="l">commits, 150 of them on day two</div></div>
+    <div class="stat"><div class="n">126</div><div class="l">release tags, v0.1 → v0.103</div></div>
+    <div class="stat"><div class="n">57</div><div class="l">species in YAML: mushrooms, berries, herbs, finds</div></div>
+    <div class="stat"><div class="n">109</div><div class="l">test files, 25k lines of TS</div></div>
+  </div>
+  <div class="row" style="margin-top:40px">
+    <div class="col"><p><b>9 specs, 6 plans</b>. Each spec opens with section 0: “where the code turned out smarter than the spec”.</p></div>
+    <div class="col"><p>Carried over from RTC as is: <code>boot-check</code>, CHANGELOG, FEATURES.md, deploy by tag.</p></div>
+  </div>
+  <aside class="notes">The second project gets off the ground faster because the process is already tuned and moves over as a set of files: CLAUDE.md, boot-check, changelog discipline. ~1.5 min.</aside>
+</section>
+
+<!-- 15b -->
+<section class="slide" data-title="A map with no edge">
+  <p class="kicker">side effect #1</p>
+  <h2>“Can we get a bigger map?” → an endless forest</h2>
+  <div class="flow" style="margin-bottom:34px">
+    <div class="step"><b>Race the City, v0.92</b>the world is a 2×2 km square around the center, with nothing past the edge</div><div class="arr">→</div>
+    <div class="step"><b>players asked</b>“make the radius from the center bigger”</div><div class="arr">→</div>
+    <div class="step"><b>itffm, September 10</b>the forest is cut into chunks, walk in any direction</div>
+  </div>
+  <div class="row">
+    <div class="card col">
+      <h3>How it got done</h3>
+      <p style="margin:0">A brainstorm in the evening, then <b>6 hours of autonomous work</b> while I slept. The spec says: any decision not approved before I go to bed, the agent makes conservatively and files as a follow-up instead of guessing.</p>
+    </div>
+    <div class="card col">
+      <h3>What came out</h3>
+      <p style="margin:0">If OSM or terrain fails to load for a chunk, it's filled in procedurally from the same seed. No wall, no error on screen.</p>
+    </div>
+  </div>
+  <aside class="notes">A request to “widen the radius” in the racing game grew into a whole architecture in another game. And it was the first time the agent worked without me for a noticeable stretch — exactly what the VM was built for. Quote from docs/superpowers/specs/2026-09-10-infinite-world-design.md. ~2 min.</aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-title="L7: September 11">
+  <p class="kicker">L6 → L7 in practice · itffm, git log</p>
+  <h2>September 11: one decision, seven branches</h2>
+  <div class="row grow" style="gap:48px">
+    <div class="col" style="flex:1.25">
+      <div class="tl">
+        <div class="tl-row tl-plan"><span class="tl-t">06:04</span><span class="tl-d"></span><span class="tl-x"><b>plan:</b> 11 play-test bug reports + old TODOs in one batch → my call: in parallel</span></div>
+        <div class="tl-row"><span class="tl-t">06:12</span><span class="tl-d"></span><span class="tl-x">removed the disclaimer screen that got in the way on mobile</span></div>
+        <div class="tl-row"><span class="tl-t">06:22</span><span class="tl-d"></span><span class="tl-x">rails sank into the terrain, trees grew through the track</span></div>
+        <div class="tl-row"><span class="tl-t">06:25</span><span class="tl-d"></span><span class="tl-x">ground seams between chunks</span></div>
+        <div class="tl-row"><span class="tl-t">06:27</span><span class="tl-d"></span><span class="tl-x">cabin door collision</span></div>
+        <div class="tl-row"><span class="tl-t">06:38</span><span class="tl-d"></span><span class="tl-x">Esc opens the pause menu</span></div>
+        <div class="tl-row"><span class="tl-t">06:42</span><span class="tl-d"></span><span class="tl-x">synthesized water sound: you hear the stream before you see it</span></div>
+        <div class="tl-row"><span class="tl-t">06:54</span><span class="tl-d"></span><span class="tl-x">perf: distance culling</span></div>
+      </div>
+      <p class="muted" style="font-size:19px;margin:12px 0 0">every line after the plan is a merge of its own <code>worktree-agent-&lt;id&gt;</code> branch</p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card" style="margin-bottom:20px">
+        <h3>My part: one decision</h3>
+        <ul><li>gather the reports into one plan</li><li>see that the tasks are independent</li><li>say “in parallel”</li></ul>
+      </div>
+      <div class="card" style="border-color:var(--blue)">
+        <h3>Claude Code: everything else</h3>
+        <ul><li>7 subagents in a single message</li><li>7 worktrees, 7 branches</li><li>tests in each, 7 merges one at a time</li></ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">I asked for parallelism myself, but the tool did the rest. The main session is the orchestrator: it calls the Agent tool with isolation: worktree, and Claude Code gives each subagent its own git worktree and a worktree-agent-&lt;id&gt; branch. A subagent starts with a clean context, does its task, runs the tests and returns a short report. The orchestrator merges the branches one at a time. The order comes from superpowers: dispatching-parallel-agents, subagent-driven-development. Models by role: in itffm Opus 5/5.5 co-authored 53 commits (specs, plans, the hard parts), Sonnet 5 — 280 (execution). The expensive model thinks, the fast one does. ~2.5 min.</aside>
+</section>
+
+<!-- 16b -->
+<section class="slide" data-title="L7: two orchestrators">
+  <p class="kicker">what actually changed between L6 and L7</p>
+  <h2>One primitive — <code style="font-size:.8em">git worktree</code> — and two orchestrators</h2>
+  <div class="row" style="align-items:stretch">
+    <div class="card col">
+      <span class="badge sm">L6</span>
+      <h3 style="margin-top:16px">claude-remote-vm-dev</h3>
+      <p class="mono" style="font-size:20px;line-height:1.6;background:#eef2f6;border-radius:10px;padding:12px 16px">me → rd-start … --session A<br>me → rd-start … --session B<br>me → rd-start … --session C</p>
+      <p style="margin:0"><b>I</b> wrote the worktree-per-session setup. How many agents, and on what — a <b>human</b> decides.</p>
+    </div>
+    <div class="card col" style="border-color:var(--blue)">
+      <span class="badge sm">L7</span>
+      <h3 style="margin-top:16px">itffm, Claude Code</h3>
+      <p class="mono" style="font-size:20px;line-height:1.6;background:#eef2f6;border-radius:10px;padding:12px 16px">me → “in parallel”<br>agent → Agent(isolation: worktree) ×7<br>agent → merge ×7</p>
+      <p style="margin:0">The <b>tool</b> creates the worktrees. How to split the work — the <b>agent</b> decides; I just approve.</p>
+    </div>
+  </div>
+  <div class="row" style="margin-top:28px;align-items:center;gap:24px">
+    <p style="margin:0;flex:0 0 auto"><b>Where the agent runs no longer matters:</b></p>
+    <div class="flow" style="flex:1">
+      <div class="step"><b>your own VM</b>tmux + systemd</div>
+      <div class="step"><b>cloud</b>claude.ai/code</div>
+      <div class="step"><b>phone</b>a remote for any of them</div>
+    </div>
+  </div>
+  <aside class="notes">The main point: I didn't build L7, the tool gave it to me. My job on this rung is to make tasks independent and verifiable: a plan, tests, boot-check, a CLAUDE.md with shared rules for all seven. I started sessions from both the computer and the phone — it varied. Where it breaks: hot files (main.ts, CHANGELOG) cause merge conflicts; shared resources like ports (hence BOOT_CHECK_PORT in Race the City, “so parallel checkouts don't collide”); every subagent starts from scratch and pays for context in tokens; reviewing seven branches is still on a human. ~2 min.</aside>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-title="What's left for the human">
+  <p class="kicker">the new bottleneck</p>
+  <h2>What tests don't catch</h2>
+  <div class="row grow">
+    <div class="col">
+      <ul>
+        <li>Oyster mushrooms rendered as flat pancakes: the generator put the stem in the center</li>
+        <li>Chimeras: a 25 cm cap on a 6 cm stem</li>
+        <li>243 mushrooms × 5 meshes → a thousand draw calls; even the headless browser froze</li>
+      </ul>
+      <p style="margin-top:24px">The fix is a tool for looking with your own eyes: <code>npm run silhouette-sheet</code>, every species' silhouette on a single sheet.</p>
+    </div>
+    <div class="col" style="flex:.75">
+      <div class="card">
+        <h3>The bottleneck moved</h3>
+        <p>From “write the code” to “check the result”.</p>
+        <p class="muted" style="margin:0">Agents write faster than I can look. Review and visual checks are now the human's main job.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">All three examples are recorded in section 0 of the design doc. No unit test would have caught them; it took a pair of eyes. That's why it pays to build tools that compress checking: a contact sheet, boot-check, a debug readout on the pause screen. ~2 min.</aside>
+</section>
+
+<!-- 17b -->
+<section class="slide" data-title="Effort">
+  <p class="kicker">back to the self-imposed limits</p>
+  <h2>Medium or x-high: it depends on the kind of task</h2>
+  <table>
+    <tr><th>kind of task</th><th>example</th><th>hypothesis</th></tr>
+    <tr><td><b>Executing a plan</b></td><td>a task from the plan with tests already written</td><td>medium ≈ x-high, and GLM/Kimi are often enough</td></tr>
+    <tr><td><b>More of the same</b></td><td>one more car, one more mushroom species in YAML</td><td>medium ≈ x-high</td></tr>
+    <tr><td><b>Diagnosis</b></td><td>the invisible wall on the quay, third time round</td><td>x-high pays off</td></tr>
+    <tr><td><b>Spec and plan</b></td><td>endless world, quests, a mine</td><td>x-high and an expensive model</td></tr>
+  </table>
+  <p class="note-hand" style="margin-top:26px">The better the spec and tests, the less effort execution needs. You pay once, at the planning stage.</p>
+  <aside class="notes">This is where my own observations go: on which tasks the difference between medium and x-high was noticeable, and on which it wasn't. How to check: the same task, two runs, compared by tests, boot-check and by eye. Same logic in itffm: Opus writes the plan, Sonnet executes it. ~2 min.</aside>
+</section>
+
+<!-- 17c -->
+<section class="slide" data-title="A forest on the founders' call">
+  <p class="kicker">side effect #2</p>
+  <h2>A screen-shared forest vs. a shouting match</h2>
+  <div class="row grow">
+    <div class="col">
+      <p>A startup sync. The founders are yelling at each other. Someone shares their screen, and there's a quiet forest: footsteps, birds, a stream, a mushroom under a birch.</p>
+      <p>The temperature drops.</p>
+      <p class="note-hand" style="font-size:44px">That wasn't in the spec.</p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <h3>The product lesson</h3>
+        <p style="margin:0">Value shows up where you didn't plan for it. Cheap releases (tag → Pages) let you put a thing in front of people fast and see how they actually use it.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">A true story; tell it live. A light slide before the wrap-up. ~1 min.</aside>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-title="Comparison">
+  <p class="kicker">the rungs, side by side</p>
+  <h2>What changed from project to project</h2>
+  <table>
+    <tr><th></th><th>Race the City</th><th>remote-vm-dev</th><th>itffm</th></tr>
+    <tr><td><b>Rung</b></td><td>L4 → L5</td><td>L5 → L6</td><td>L6 → L7</td></tr>
+    <tr><td><b>Agents</b></td><td>one, in my terminal</td><td>N sessions on a VM</td><td>subagents in worktrees + cloud</td></tr>
+    <tr><td><b>Models</b></td><td>Opus for everything</td><td>any provider</td><td>Opus plans, Sonnet executes</td></tr>
+    <tr><td><b>Memory</b></td><td>AGENTS.md, TODO</td><td>branch = session</td><td>CLAUDE.md, specs with section 0</td></tr>
+    <tr><td><b>Bottleneck</b></td><td>my sleep</td><td>the laptop</td><td>review and looking with my own eyes</td></tr>
+  </table>
+  <aside class="notes">The summary table — take a photo and you're done. ~1 min.</aside>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-title="Takeaways">
+  <p class="kicker">what you can take to your team tomorrow</p>
+  <h2>Five rules</h2>
+  <ul style="font-size:32px">
+    <li><b>Spec before code.</b> The agent executes a plan. An empty prompt breeds improvisation</li>
+    <li><b>The contract lives in the repo.</b> AGENTS.md / CLAUDE.md, invariants, known pitfalls. The agent forgets; the repo remembers</li>
+    <li><b>Check that it boots, not just that tests pass.</b> boot-check catches what green CI misses</li>
+    <li><b>One agent, one worktree.</b> Without it, parallelism turns into merge conflicts</li>
+    <li><b>Tools for your eyes.</b> Compress review: contact sheets, readouts, 👀 in the changelog</li>
+  </ul>
+  <aside class="notes">The key slide for practitioners. ~1.5 min.</aside>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-title="L8–L9">
+  <p class="kicker">what's next</p>
+  <h2>L8 and L9: swarm and ecosystem</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="ladder" style="margin-bottom:36px">
+        <div class="rung on"><b>L5</b>full access</div>
+        <div class="rung on"><b>L6</b>parallel</div>
+        <div class="rung me"><b>L7</b>I'm here</div>
+        <div class="rung"><b>L8</b>swarm</div>
+        <div class="rung"><b>L9</b>ecosystem</div>
+      </div>
+      <p>Climbing higher takes not more agents but <b>automated verification</b>: a reviewer agent, visual regression testing, play-testing by bot.</p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <h3>From the backlog</h3>
+        <ul><li>Live weather and seasons from real data</li><li>New OSM layers</li><li>LAN multiplayer in RTC (the branch already exists)</li><li>Species photos via ETL in itffm</li></ul>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Honestly: I'm not at L8–L9 yet. As long as a human does the review, the number of agents is capped by that human. A teaser for the next talk. ~1.5 min.</aside>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-title="Questions">
+  <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+    <p class="kicker">thank you!</p>
+    <h1>Questions?</h1>
+    <div class="row" style="margin-top:8px;gap:28px">
+      <div class="card col qr-card"><img src="qr/race-the-city.svg" alt="QR: github.com/kryadov/race-the-city"><h3>🚗 Race the City</h3><p><a href="https://github.com/kryadov/race-the-city" target="_blank" rel="noopener">kryadov/race-the-city</a><br><span class="muted">play: race-the-city.games</span></p></div>
+      <div class="card col qr-card"><img src="qr/itffm.svg" alt="QR: github.com/kryadov/itffm"><h3>🍄 itffm</h3><p><a href="https://github.com/kryadov/itffm" target="_blank" rel="noopener">kryadov/itffm</a><br><span class="muted">play: kryadov.github.io/itffm</span></p></div>
+      <div class="card col qr-card"><img src="qr/remote-vm.svg" alt="QR: github.com/kryadov/claude-remote-vm-dev"><h3>🖥 remote VM</h3><p><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">kryadov/claude-remote-vm-dev</a></p></div>
+      <div class="card col qr-card"><img src="qr/slides.svg" alt="QR: kryadov.github.io/batumi-meetup-1"><h3>📑 Slides</h3><p><a href="https://kryadov.github.io/batumi-meetup-1/" target="_blank" rel="noopener">kryadov.github.io/batumi-meetup-1</a></p></div>
+    </div>
+    <p class="muted" style="margin-top:24px;font-size:24px">Konstantin Ryadov · github.com/kryadov</p>
+  </div>
+  <aside class="notes">~2 min for questions. Prepared answers: cost (subscription vs. API), code quality (28k lines, strict TS, 100+ test files), what to do if your company can't use the cloud (a VM + Bedrock or Vertex in your own account).</aside>
+</section>
+
+</div></div>
+
+<div id="progress"></div>
+<div id="notes-panel"><div class="t" id="notes-title"></div><div id="notes-body"></div></div>
+<div id="nav"><button id="prev" aria-label="Previous">←</button><span id="counter"></span><button id="next" aria-label="Next">→</button><button id="notes-btn">N</button><button id="fs-btn">F</button><a id="lang" data-href="index.html" href="index.html" hreflang="ru" lang="ru" title="Русский (L)">RU</a></div>
+
+<script src="deck.js"></script>
+</body>
+</html>
