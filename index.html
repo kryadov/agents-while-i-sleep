@@ -109,6 +109,13 @@
 
   .notes { display: none; }
 
+  .qr-card { text-align: center; padding: 22px 20px; }
+  .qr-card img { width: 220px; height: 220px; display: block; margin: 0 auto 14px; image-rendering: pixelated; }
+  .qr-card h3 { font-size: 26px; margin-bottom: 6px; }
+  .qr-card p { font-size: 19px; line-height: 1.4; margin: 0; word-break: break-word; }
+  .qr-mini { position: absolute; right: 96px; bottom: 56px; text-align: center; font-size: 15px; color: var(--muted); }
+  .qr-mini img { width: 132px; height: 132px; display: block; border: 2px solid var(--line); border-radius: 10px; background: #fff; padding: 4px; }
+
   /* UI chrome */
   #progress { position: fixed; left: 0; bottom: 0; height: 4px; background: var(--blue); transition: width .25s; z-index: 5; }
   #notes-panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 38vh; overflow: auto; background: #1f2731; color: #e9eef4;
@@ -147,6 +154,48 @@
   </div>
   <div class="footer"><span>Константин Рядов · github.com/kryadov</span><span>← → листать · N заметки · F полный экран</span></div>
   <aside class="notes">Представиться. Обещание доклада: на трёх настоящих проектах показать, как меняется работа на каждой ступеньке лестницы. Никаких «AI заменит программистов», только цифры из git log. ~1 мин.</aside>
+</section>
+
+<!-- 1a -->
+<section class="slide" data-title="Днём и вечером">
+  <p class="kicker">откуда этот доклад</p>
+  <h2>Днём — энтерпрайз. Вечером — без рамок</h2>
+  <div class="row" style="align-items:flex-start">
+    <div class="card col">
+      <h3>Днём: под NDA</h3>
+      <p>Делаю AI-агентов для корпоративных клиентов. Деталей рассказать не могу, но кое-что уже анонсировано публично:</p>
+      <p style="font-size:24px;margin:0"><a href="https://www.azul.com/newsroom/azul-launches-ai-assistant-that-tells-it-and-security-teams-where-java-licensing-and-security-risk-is-hiding" target="_blank" rel="noopener">Azul Intelligence Cloud AI Assistant</a> <span class="muted">(23.09.2026)</span>: вопросы на естественном языке о Java в проде, где прячутся риски по лицензиям и безопасности. Режим read-only.</p>
+    </div>
+    <div class="card col">
+      <h3>Вечером: выйти за рамки</h3>
+      <p>Во всех смыслах: другой домен (игры), другой стек (3D в браузере), другие правила (никакого бюджета на инфраструктуру).</p>
+      <p class="note-hand" style="margin:0">Всё, что тут показываю, открыто: код, git log, демо.</p>
+    </div>
+  </div>
+  <aside class="notes">Контраст: на работе процессы, периметр, NDA. Вечером песочница, где можно проверить то, что на работе проверять дорого. Обратно на работу переносится процесс (и remote-vm-dev). ~1.5 мин.</aside>
+</section>
+
+<!-- 1b -->
+<section class="slide" data-title="Вериги">
+  <p class="kicker">правила эксперимента</p>
+  <h2>Вериги: $20 + $100</h2>
+  <div class="row grow">
+    <div class="col">
+      <div class="stats" style="grid-template-columns:1fr 1fr;margin-bottom:28px">
+        <div class="stat"><div class="n">$20</div><div class="l">подписка Claude Pro, с её лимитами</div></div>
+        <div class="stat"><div class="n">$100</div><div class="l">OpenRouter: GLM, Kimi — open-weight модели</div></div>
+      </div>
+      <p>Заплатить за Max — не проблема. Проблема в том, что тогда не узнаешь главного.</p>
+    </div>
+    <div class="col" style="flex:.9">
+      <div class="card">
+        <h3>Вопрос, ради которого всё затевалось</h3>
+        <p class="quote" style="font-size:30px">Для какого класса задач effort <b>medium</b> даёт то же, что <b>x-high</b>?</p>
+        <p class="muted" style="margin:18px 0 0">Лимит заставляет считать: дешёвая модель и низкий effort везде, где их хватает, а дорогой — только там, где без него никак.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Самоограничение как инструмент исследования. Безлимит маскирует неэффективность. Ответ на вопрос про effort — ближе к концу доклада, после двух проектов. ~1.5 мин.</aside>
 </section>
 
 <!-- 2 -->
@@ -189,6 +238,7 @@
 
 <!-- 4 -->
 <section class="slide" data-title="Race the City">
+  <div class="qr-mini"><img src="qr/race-the-city.svg" alt="QR: github.com/kryadov/race-the-city">репозиторий</div>
   <p class="kicker">ступенька L4 → L5 · Race the City</p>
   <h2>Введи название города и поезжай</h2>
   <div class="row grow">
@@ -247,27 +297,48 @@
 </section>
 
 <!-- 7 -->
-<section class="slide" data-title="Zero backend">
-  <p class="kicker">архитектура</p>
-  <h2>Zero backend — меньше поверхности для ошибок</h2>
+<section class="slide" data-title="Без сервера: почему">
+  <p class="kicker">архитектура, не про агентов</p>
+  <h2>OSM + высоты + погода без сервера</h2>
+  <div class="flow" style="margin-bottom:30px">
+    <div class="step"><b>openstreetmap.org</b>Nominatim, Overpass</div>
+    <div class="step"><b>AWS Terrain Tiles</b>S3, Terrarium PNG</div>
+    <div class="step"><b>Open-Meteo</b>живая погода</div>
+    <div class="arr">→</div>
+    <div class="step" style="flex:1.3;border-color:var(--blue)"><b>браузер</b>Three.js + IndexedDB, статика на Pages</div>
+  </div>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+    <div class="card"><h3>$0 и ноль ops</h3><p style="margin:0">Нечего мониторить, патчить и масштабировать. Нагрузку раздаёт CDN, данные отдают открытые API.</p></div>
+    <div class="card"><h3>Нечего утечь</h3><p style="margin:0">Нет базы, нет аккаунтов, нет секретов. Прогресс игрока остаётся в его браузере.</p></div>
+    <div class="card"><h3>Деплой = тег</h3><p style="margin:0">Откат — на предыдущий тег. Форк — и у тебя своя копия игры, тоже бесплатно.</p></div>
+  </div>
+  <aside class="notes">Этот блок не про агентов, а про архитектуру в целом. Публичные API без ключей с CORS превращают браузер в полноценный клиент к данным всего мира. Сервер нужен, только если надо хранить чужие данные или прятать ключи. Здесь не надо ни то, ни другое. ~2 мин.</aside>
+</section>
+
+<!-- 7b -->
+<section class="slide" data-title="Без сервера: правила">
+  <p class="kicker">чтобы это работало, а не падало</p>
+  <h2>Цена: ты гость в чужой инфраструктуре</h2>
   <div class="row grow">
     <div class="col">
       <ul>
-        <li>Статика на GitHub Pages: деплой = <code>git tag</code></li>
-        <li>Каждый сетевой запрос уходит прямо из браузера</li>
-        <li>IndexedDB: кеш городов и прогресс игрока</li>
-        <li>Слои с односторонними зависимостями: <code>geo/</code> не знает про Three.js, <code>world/</code> не знает про сеть</li>
+        <li><b>Только API без ключей.</b> Ключ в статике сразу становится публичным</li>
+        <li><b>Уважай usage policy.</b> Nominatim: 1 запрос в секунду; Overpass отвечает 429</li>
+        <li><b>Кеш обязателен.</b> Город, загруженный один раз, живёт в IndexedDB</li>
+        <li><b>Зеркала и таймауты.</b> 3 Overpass-зеркала, 30 с, протухший кеш как запасной</li>
+        <li><b>Честный fallback.</b> Нет рельефа → плоская земля; нет OSM → процедурный лес</li>
+        <li><b>Атрибуция.</b> Данные OSM под ODbL, © OpenStreetMap contributors</li>
       </ul>
     </div>
-    <div class="col" style="flex:.85">
+    <div class="col" style="flex:.7">
       <div class="card">
-        <h3>Почему это важно для агентов</h3>
-        <p>Нет сервера → нет миграций, секретов, окружений. Агент может зарелизить сам, а откат = предыдущий тег.</p>
-        <p class="muted" style="margin:0">Границы слоёв записаны в <code>AGENTS.md</code> как правила, которые <b>должны</b> соблюдаться.</p>
+        <h3>И бонус для агентов</h3>
+        <p>Нет сервера → нет миграций, окружений и секретов. Агенту можно доверить релиз целиком.</p>
+        <p class="muted" style="margin:0">Границы слоёв записаны в <code>AGENTS.md</code>: <code>geo/</code> не знает про Three.js, <code>world/</code> не знает про сеть.</p>
       </div>
     </div>
   </div>
-  <aside class="notes">Архитектура как ограничитель для агента: чем меньше движущихся частей, тем больше можно доверить. AGENTS.md — контракт между мной и агентом. ~2 мин.</aside>
+  <aside class="notes">Подвох бессерверной архитектуры: твоя доступность — это доступность чужих бесплатных сервисов. Отсюда кеш, зеркала и fallback на каждом шаге. Это паттерн, применимый далеко за пределами игр: дашборды, карты, визуализации открытых данных. ~2 мин.</aside>
 </section>
 
 <!-- 8 -->
@@ -320,7 +391,7 @@
   <div class="row">
     <div class="card col"><h3>Делегировалось</h3><ul><li>Код, тесты, рефакторинг</li><li>Релизы, CHANGELOG</li><li>Диагностика по репорту</li></ul></div>
     <div class="card col"><h3>Оставалось за мной</h3><ul><li>Что строим и в каком порядке</li><li>«Посмотреть глазами»</li><li>Когда остановиться</li></ul></div>
-    <div class="card col"><h3>Бонус: агент в CI</h3><p>Комментарий <code>/oc</code> в issue или PR → opencode на GLM через OpenRouter.</p></div>
+    <div class="card col"><h3>Бонус: агент в CI</h3><p>Комментарий <code>/oc</code> в issue или PR → opencode на GLM через OpenRouter, с теми же superpowers-скиллами.</p></div>
   </div>
   <aside class="notes">8 спек и 4 плана за проект. Superpowers-скиллы задают процесс. Бонус: дешёвая модель в GitHub Actions отвечает на /oc. Это первый шаг к «агенту, который работает без меня». ~2 мин.</aside>
 </section>
@@ -346,6 +417,7 @@
 
 <!-- 12 -->
 <section class="slide" data-title="claude-remote-vm-dev">
+  <div class="qr-mini"><img src="qr/remote-vm.svg" alt="QR: github.com/kryadov/claude-remote-vm-dev">репозиторий</div>
   <p class="kicker">ступенька L5 → L6 · claude-remote-vm-dev</p>
   <h2>Сессии Claude Code на VM внутри периметра</h2>
   <div class="row grow">
@@ -387,6 +459,7 @@
 
 <!-- 14 -->
 <section class="slide" data-title="itffm">
+  <div class="qr-mini"><img src="qr/itffm.svg" alt="QR: github.com/kryadov/itffm">репозиторий</div>
   <p class="kicker">ступенька L6 → L7 · itffm 🍄</p>
   <h2>Тихая прогулка по настоящему лесу</h2>
   <div class="row grow">
@@ -425,6 +498,28 @@
     <div class="col"><p>Перенесено из RTC без изменений: <code>boot-check</code>, CHANGELOG, FEATURES.md, деплой по тегу.</p></div>
   </div>
   <aside class="notes">Второй проект быстрее стартует, потому что процесс уже отлажен и переносится как набор файлов: CLAUDE.md, boot-check, changelog-дисциплина. ~1.5 мин.</aside>
+</section>
+
+<!-- 15b -->
+<section class="slide" data-title="Карта без края">
+  <p class="kicker">побочный эффект №1</p>
+  <h2>«А можно карту побольше?» → бесконечный лес</h2>
+  <div class="flow" style="margin-bottom:34px">
+    <div class="step"><b>Race the City, v0.92</b>мир — квадрат 2×2 км вокруг центра, на краю пустота</div><div class="arr">→</div>
+    <div class="step"><b>просьба игроков</b>«расширьте радиус от центра»</div><div class="arr">→</div>
+    <div class="step"><b>itffm, 10 сентября</b>лес нарезается чанками, ходи в любую сторону</div>
+  </div>
+  <div class="row">
+    <div class="card col">
+      <h3>Как это решалось</h3>
+      <p style="margin:0">Брейншторм вечером, дальше <b>6 часов автономной работы</b>, пока я спал. В спеке записано: решения, не утверждённые до сна, агент принимает консервативно и выносит в follow-up, а не угадывает.</p>
+    </div>
+    <div class="card col">
+      <h3>Что получилось</h3>
+      <p style="margin:0">Чанк, для которого OSM или рельеф не загрузились, достраивается процедурно с того же seed. Стены нет, ошибки на экране нет.</p>
+    </div>
+  </div>
+  <aside class="notes">Просьба «расширить радиус» в гонке выросла в целую архитектуру в другой игре. И это первый случай, когда агент заметное время работал без меня. Ровно для этого и строилась VM. Цитата из docs/superpowers/specs/2026-09-10-infinite-world-design.md. ~2 мин.</aside>
 </section>
 
 <!-- 16 -->
@@ -477,6 +572,41 @@
     </div>
   </div>
   <aside class="notes">Все три примера записаны в разделе 0 дизайн-документа. Ни один unit-тест их бы не поймал, нужен был глаз. Поэтому стоит строить инструменты, которые сжимают проверку: контактный лист, boot-check, отладочный readout в паузе. ~2 мин.</aside>
+</section>
+
+<!-- 17b -->
+<section class="slide" data-title="Effort">
+  <p class="kicker">возвращаемся к вопросу про вериги</p>
+  <h2>Medium или x-high: зависит от класса задачи</h2>
+  <table>
+    <tr><th>класс задачи</th><th>пример</th><th>гипотеза</th></tr>
+    <tr><td><b>Исполнение по плану</b></td><td>задача из плана с готовыми тестами</td><td>medium ≈ x-high, а часто хватает и GLM/Kimi</td></tr>
+    <tr><td><b>Механика по образцу</b></td><td>ещё одна машина, ещё один вид гриба в YAML</td><td>medium ≈ x-high</td></tr>
+    <tr><td><b>Диагностика</b></td><td>невидимая стена на набережной, третий раз</td><td>x-high окупается</td></tr>
+    <tr><td><b>Спека и план</b></td><td>бесконечный мир, квесты, шахта</td><td>x-high и дорогая модель</td></tr>
+  </table>
+  <p class="note-hand" style="margin-top:26px">Чем лучше спека и тесты, тем меньше нужен effort на исполнении. Платишь один раз на этапе плана.</p>
+  <aside class="notes">Здесь — собственные наблюдения: на каких задачах разница между medium и x-high была заметна, а на каких нет. Проверка: одна и та же задача, два прогона, сравнение по тестам, boot-check и глазами. Та же логика в itffm: Opus пишет план, Sonnet по нему исполняет. ~2 мин.</aside>
+</section>
+
+<!-- 17c -->
+<section class="slide" data-title="Лес на синке">
+  <p class="kicker">побочный эффект №2</p>
+  <h2>Лес на шаренном экране против крика на синке</h2>
+  <div class="row grow">
+    <div class="col">
+      <p>Синк стартапа. Фаундеры орут друг на друга. Кто-то шарит экран, а там тихий лес: шаги, птицы, ручей, гриб под берёзой.</p>
+      <p>Градус спадает.</p>
+      <p class="note-hand" style="font-size:44px">Такого в спеке не было.</p>
+    </div>
+    <div class="col" style="flex:.8">
+      <div class="card">
+        <h3>Вывод для продукта</h3>
+        <p style="margin:0">Ценность находится там, где её не планировал. Дешёвый релиз (тег → Pages) позволяет быстро показать вещь людям и посмотреть, как они используют её на самом деле.</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">Реальная история, рассказать вживую. Лёгкий слайд перед итогами. ~1 мин.</aside>
 </section>
 
 <!-- 18 -->
@@ -538,12 +668,13 @@
   <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
     <p class="kicker">спасибо!</p>
     <h1>Вопросы?</h1>
-    <div class="row" style="margin-top:24px">
-      <div class="card col"><h3>🚗 Race the City</h3><p style="margin:0"><a href="https://race-the-city.games" target="_blank" rel="noopener">race-the-city.games</a></p></div>
-      <div class="card col"><h3>🍄 itffm</h3><p style="margin:0"><a href="https://kryadov.github.io/itffm/" target="_blank" rel="noopener">kryadov.github.io/itffm</a></p></div>
-      <div class="card col"><h3>🖥 remote VM</h3><p style="margin:0"><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">kryadov/claude-remote-vm-dev</a></p></div>
+    <div class="row" style="margin-top:8px;gap:28px">
+      <div class="card col qr-card"><img src="qr/race-the-city.svg" alt="QR: github.com/kryadov/race-the-city"><h3>🚗 Race the City</h3><p><a href="https://github.com/kryadov/race-the-city" target="_blank" rel="noopener">kryadov/race-the-city</a><br><span class="muted">играть: race-the-city.games</span></p></div>
+      <div class="card col qr-card"><img src="qr/itffm.svg" alt="QR: github.com/kryadov/itffm"><h3>🍄 itffm</h3><p><a href="https://github.com/kryadov/itffm" target="_blank" rel="noopener">kryadov/itffm</a><br><span class="muted">играть: kryadov.github.io/itffm</span></p></div>
+      <div class="card col qr-card"><img src="qr/remote-vm.svg" alt="QR: github.com/kryadov/claude-remote-vm-dev"><h3>🖥 remote VM</h3><p><a href="https://github.com/kryadov/claude-remote-vm-dev" target="_blank" rel="noopener">kryadov/claude-remote-vm-dev</a></p></div>
+      <div class="card col qr-card"><img src="qr/slides.svg" alt="QR: kryadov.github.io/batumi-meetup-1"><h3>📑 Слайды</h3><p><a href="https://kryadov.github.io/batumi-meetup-1/" target="_blank" rel="noopener">kryadov.github.io/batumi-meetup-1</a></p></div>
     </div>
-    <p class="muted" style="margin-top:36px;font-size:26px">Слайды: kryadov.github.io/batumi-meetup-1 · Константин Рядов · github.com/kryadov</p>
+    <p class="muted" style="margin-top:24px;font-size:24px">Константин Рядов · github.com/kryadov</p>
   </div>
   <aside class="notes">~2 мин на вопросы. Заготовки ответов: стоимость (подписка или API), качество кода (28k строк, strict TS, 100+ тестов), что делать, если компании нельзя в облако (VM + Bedrock или Vertex в своём аккаунте).</aside>
 </section>
