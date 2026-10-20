@@ -4,7 +4,7 @@ Guidance for AI agents and humans working in this repo.
 
 ## What this is
 
-Slides and announcement for a Batumi meetup talk by Konstantin Ryadov:
+Slides and announcement for a meetup talk by Konstantin Ryadov:
 **«Агенты работают, даже когда я сплю»** — *если есть бэклог или есть что улучшать, в том числе по секьюрити*.
 
 The talk walks up the L1→L9 AI-development ladder on three real projects:
@@ -12,7 +12,7 @@ The talk walks up the L1→L9 AI-development ladder on three real projects:
 [claude-remote-vm-dev](https://github.com/kryadov/claude-remote-vm-dev) (L5→L6),
 [itffm](https://github.com/kryadov/itffm) (L6→L7).
 
-Published at https://kryadov.github.io/batumi-meetup-1/ by GitHub Pages from `main`, repo root.
+Published at https://kryadov.github.io/agents-while-i-sleep/ by GitHub Pages from `main`, repo root.
 **Every push to `main` is live within a minute.**
 
 ## Files
@@ -83,4 +83,4 @@ chrome --headless=new --hide-scrollbars --window-size=1600,900 \
 
 Watch for text overflowing cards, headings wrapping into three lines, and QR codes overlapping content.
 After pushing, confirm the Pages build finished:
-`gh api repos/kryadov/batumi-meetup-1/pages/builds/latest --jq .status`.
+`gh api repos/kryadov/agents-while-i-sleep/pages/builds/latest --jq .status`.

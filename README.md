@@ -2,9 +2,9 @@
 
 *если есть бэклог или есть что улучшать — в том числе по секьюрити*
 
-Доклад для Batumi meetup: подъём по лестнице AI-разработки L1→L9 на трёх проектах.
+Доклад: подъём по лестнице AI-разработки L1→L9 на трёх проектах.
 
-**Слайды:** https://kryadov.github.io/batumi-meetup-1/ · in English: https://kryadov.github.io/batumi-meetup-1/en.html
+**Слайды:** https://kryadov.github.io/agents-while-i-sleep/ · in English: https://kryadov.github.io/agents-while-i-sleep/en.html
 
 Управление: `←` `→` / пробел — листать, `N` — заметки спикера, `F` — полный экран, `L` или кнопка EN/RU — другой язык на том же слайде, `#5` в адресе — сразу на 5-й слайд. Печать в PDF: Ctrl+P (каждый слайд на отдельной странице). QR-коды — статические SVG в `qr/`, интернет для них не нужен.
 
